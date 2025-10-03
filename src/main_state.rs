@@ -2,12 +2,12 @@ use ggez::{GameResult, event, glam::Vec2, graphics, input::keyboard::KeyCode};
 use rand::Rng;
 
 const RACKET_SPEED: f32 = 650.0;
-const BALL_SPEED: f32 = 400.0;
+const BALL_SPEED: f32 = 500.0;
 const RACKET_HEIGHT: f32 = 150.0;
 const RACKET_WIDTH: f32 = 20.0;
 const RACKET_HEIGHT_HALF: f32 = RACKET_HEIGHT / 2.0;
 const RACKET_WIDTH_HALF: f32 = RACKET_WIDTH / 2.0;
-const RACKET_OFFSET: f32 = RACKET_WIDTH;
+const RACKET_OFFSET: f32 = RACKET_WIDTH * 2.0;
 const BALL_SIZE: f32 = 20.0;
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
