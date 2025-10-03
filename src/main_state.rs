@@ -1,7 +1,7 @@
-use ggez::{GameResult, event, glam::Vec2, graphics, input::keyboard::KeyCode};
+use crate::racket;
+use ggez::{GameResult, event, glam::Vec2, graphics};
 use rand::Rng;
 
-const RACKET_SPEED: f32 = 650.0;
 const BALL_SPEED: f32 = 500.0;
 const RACKET_HEIGHT: f32 = 150.0;
 const RACKET_WIDTH: f32 = 20.0;
@@ -10,18 +10,6 @@ const RACKET_WIDTH_HALF: f32 = RACKET_WIDTH / 2.0;
 const RACKET_OFFSET: f32 = RACKET_WIDTH * 2.0;
 const BALL_SIZE: f32 = 20.0;
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
-
-fn move_racket(position: &mut Vec2, up_key: KeyCode, down_key: KeyCode, context: &mut ggez::Context, delta_time: f32) {
-    let racket_speed = RACKET_SPEED * delta_time;
-
-    if context.keyboard.is_key_pressed(up_key) && position.y - RACKET_HEIGHT_HALF > 0.0 {
-        position.y -= racket_speed;
-    }
-
-    if context.keyboard.is_key_pressed(down_key) && position.y + RACKET_HEIGHT_HALF < context.gfx.drawable_size().1 {
-        position.y += racket_speed;
-    }
-}
 
 fn randomize_velocity(vector: &mut Vec2, x: f32, y: f32) {
     let mut random_thread = rand::rng();
@@ -36,15 +24,14 @@ fn randomize_velocity(vector: &mut Vec2, x: f32, y: f32) {
 }
 
 pub struct MainState {
-    player_1_position: Vec2,
-    player_2_position: Vec2,
+    player_1: racket::Racket,
+    player_2: racket::Racket,
     player_1_score: u32,
     player_2_score: u32,
     ball_position: Vec2,
     ball_velocity: Vec2,
 
     // Meshes
-    racket_mesh: graphics::Mesh,
     ball_mesh: graphics::Mesh,
     middle_line_mesh: graphics::Mesh,
     score_text: graphics::Text,
@@ -63,9 +50,6 @@ impl MainState {
         let player_2_score = 0;
 
         // Meshes
-        let racket_rectangle = graphics::Rect::new(-RACKET_WIDTH_HALF, -RACKET_HEIGHT_HALF, RACKET_WIDTH, RACKET_HEIGHT);
-        let racket_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), racket_rectangle, graphics::Color::WHITE)?;
-
         let ball_rectangle = graphics::Rect::new(-BALL_SIZE / 2.0, -BALL_SIZE / 2.0, BALL_SIZE, BALL_SIZE);
         let ball_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), ball_rectangle, graphics::Color::WHITE)?;
 
@@ -89,15 +73,16 @@ impl MainState {
             context.gfx.drawable_size().0 / 2.0 - text_dimensions.x / 2.0,
             context.gfx.drawable_size().1 / 2.0 - text_dimensions.y / 2.0,
         );
+        let player_1 = racket::Racket::new(RACKET_OFFSET, screen_height_center, context)?;
+        let player_2 = racket::Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context)?;
 
         Ok(MainState {
-            player_1_position: Vec2::new(RACKET_OFFSET, screen_height_center),
-            player_2_position: Vec2::new(screen_width - RACKET_OFFSET, screen_height_center),
+            player_1,
+            player_2,
             player_1_score,
             player_2_score,
             ball_position: Vec2::new(screen_width_center, screen_height_center),
             ball_velocity: ball_velocity.normalize() * BALL_SPEED,
-            racket_mesh,
             ball_mesh,
             middle_line_mesh,
             score_text,
@@ -110,8 +95,11 @@ impl event::EventHandler for MainState {
     fn update(&mut self, context: &mut ggez::Context) -> GameResult {
         let delta_time = context.time.delta().as_secs_f32();
 
-        move_racket(&mut self.player_1_position, KeyCode::W, KeyCode::S, context, delta_time);
-        move_racket(&mut self.player_2_position, KeyCode::Up, KeyCode::Down, context, delta_time);
+        // Move rackets (player 1: W/S, player 2: Up/Down)
+        self.player_1
+            .move_racket(ggez::input::keyboard::KeyCode::W, ggez::input::keyboard::KeyCode::S, context, delta_time);
+        self.player_2
+            .move_racket(ggez::input::keyboard::KeyCode::Up, ggez::input::keyboard::KeyCode::Down, context, delta_time);
 
         if self.ball_position.y - BALL_SIZE / 2.0 <= 0.0 && self.ball_velocity.y < 0.0
             || self.ball_position.y + BALL_SIZE / 2.0 >= context.gfx.drawable_size().1 && self.ball_velocity.y > 0.0
@@ -119,30 +107,33 @@ impl event::EventHandler for MainState {
             self.ball_velocity.y = -self.ball_velocity.y;
         }
 
-        if self.ball_position.x - BALL_SIZE / 2.0 <= self.player_1_position.x + RACKET_WIDTH_HALF
-            && self.ball_position.y >= self.player_1_position.y - RACKET_HEIGHT_HALF
-            && self.ball_position.y <= self.player_1_position.y + RACKET_HEIGHT_HALF
+        // Left racket collision
+        if self.ball_position.x - BALL_SIZE / 2.0 <= self.player_1.pos_x + RACKET_WIDTH_HALF
+            && self.ball_position.y >= self.player_1.pos_y - RACKET_HEIGHT_HALF
+            && self.ball_position.y <= self.player_1.pos_y + RACKET_HEIGHT_HALF
             && self.ball_velocity.x < 0.0
         {
             self.ball_velocity.x = -self.ball_velocity.x;
-            let offset = (self.ball_position.y - self.player_1_position.y) / RACKET_HEIGHT_HALF;
+            let offset = (self.ball_position.y - self.player_1.pos_y) / RACKET_HEIGHT_HALF;
             self.ball_velocity.y = BALL_SPEED * offset;
 
             self.ball_velocity = self.ball_velocity.normalize() * BALL_SPEED;
         }
 
-        if self.ball_position.x + BALL_SIZE / 2.0 >= self.player_2_position.x - RACKET_WIDTH_HALF
-            && self.ball_position.y >= self.player_2_position.y - RACKET_HEIGHT_HALF
-            && self.ball_position.y <= self.player_2_position.y + RACKET_HEIGHT_HALF
+        // Right racket collision
+        if self.ball_position.x + BALL_SIZE / 2.0 >= self.player_2.pos_x - RACKET_WIDTH_HALF
+            && self.ball_position.y >= self.player_2.pos_y - RACKET_HEIGHT_HALF
+            && self.ball_position.y <= self.player_2.pos_y + RACKET_HEIGHT_HALF
             && self.ball_velocity.x > 0.0
         {
             self.ball_velocity.x = -self.ball_velocity.x;
-            let offset = (self.ball_position.y - self.player_2_position.y) / RACKET_HEIGHT_HALF;
+            let offset = (self.ball_position.y - self.player_2.pos_y) / RACKET_HEIGHT_HALF;
             self.ball_velocity.y = BALL_SPEED * offset;
 
             self.ball_velocity = self.ball_velocity.normalize() * BALL_SPEED;
         }
 
+        // Score update
         if self.ball_position.x < 0.0 {
             self.player_2_score += 1;
             self.ball_position = Vec2::new(context.gfx.drawable_size().0 / 2.0, context.gfx.drawable_size().1 / 2.0);
@@ -170,8 +161,8 @@ impl event::EventHandler for MainState {
                 .color(graphics::Color::from_rgb(50, 50, 50)),
         );
         canvas.draw(&self.middle_line_mesh, graphics::DrawParam::default());
-        canvas.draw(&self.racket_mesh, graphics::DrawParam::default().dest(self.player_1_position));
-        canvas.draw(&self.racket_mesh, graphics::DrawParam::default().dest(self.player_2_position));
+        self.player_1.draw(&mut canvas);
+        self.player_2.draw(&mut canvas);
         canvas.draw(&self.ball_mesh, graphics::DrawParam::default().dest(self.ball_position));
 
         canvas.finish(context)?;

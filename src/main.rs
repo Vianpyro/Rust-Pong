@@ -1,6 +1,7 @@
 #![windows_subsystem = "windows"]
 
 mod main_state;
+mod racket;
 
 use crate::main_state::MainState;
 use ggez::{
