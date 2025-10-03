@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 mod main_state;
 
 use crate::main_state::MainState;
