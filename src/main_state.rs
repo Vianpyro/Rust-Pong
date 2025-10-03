@@ -113,7 +113,11 @@ impl event::EventHandler for MainState {
         move_racket(&mut self.player_1_position, KeyCode::W, KeyCode::S, context, delta_time);
         move_racket(&mut self.player_2_position, KeyCode::Up, KeyCode::Down, context, delta_time);
 
-        if self.ball_position.y - BALL_SIZE / 2.0 <= 0.0 || self.ball_position.y + BALL_SIZE / 2.0 >= context.gfx.drawable_size().1 {
+        if self.ball_position.y - BALL_SIZE / 2.0 <= 0.0 && self.ball_velocity.y < 0.0 {
+            self.ball_velocity.y = -self.ball_velocity.y;
+        }
+
+        if self.ball_position.y + BALL_SIZE / 2.0 >= context.gfx.drawable_size().1 && self.ball_velocity.y > 0.0 {
             self.ball_velocity.y = -self.ball_velocity.y;
         }
 
