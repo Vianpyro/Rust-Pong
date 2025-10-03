@@ -10,6 +10,6 @@ fn main() -> GameResult {
     let (mut context, event_loop) = context_builder.build()?;
     context.gfx.set_window_title(TITLE);
 
-    let state = MainState::new(&mut context);
+    let state = MainState::new(&mut context)?;
     event::run(context, event_loop, state);
 }

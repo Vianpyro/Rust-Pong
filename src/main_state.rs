@@ -42,24 +42,67 @@ pub struct MainState {
     player_2_score: u32,
     ball_position: Vec2,
     ball_velocity: Vec2,
+
+    // Meshes
+    racket_mesh: graphics::Mesh,
+    ball_mesh: graphics::Mesh,
+    middle_line_mesh: graphics::Mesh,
+    score_text: graphics::Text,
+    score_position: Vec2,
 }
 
 impl MainState {
-    pub fn new(context: &mut ggez::Context) -> Self {
+    pub fn new(context: &mut ggez::Context) -> GameResult<Self> {
         let (screen_width, screen_height) = context.gfx.drawable_size();
         let (screen_width_center, screen_height_center) = (screen_width / 2.0, screen_height / 2.0);
 
         let mut ball_velocity = Vec2::new(0.0, 0.0);
         randomize_velocity(&mut ball_velocity, BALL_SPEED, BALL_SPEED);
 
-        MainState {
+        let player_1_score = 0;
+        let player_2_score = 0;
+
+        // Meshes
+        let racket_rectangle = graphics::Rect::new(-RACKET_WIDTH_HALF, -RACKET_HEIGHT_HALF, RACKET_WIDTH, RACKET_HEIGHT);
+        let racket_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), racket_rectangle, graphics::Color::WHITE)?;
+
+        let ball_rectangle = graphics::Rect::new(-BALL_SIZE / 2.0, -BALL_SIZE / 2.0, BALL_SIZE, BALL_SIZE);
+        let ball_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), ball_rectangle, graphics::Color::WHITE)?;
+
+        let middle_line_rectangle = graphics::Rect::new(
+            context.gfx.drawable_size().0 / 2.0 - MIDDLE_LINE_WIDTH / 2.0,
+            0.0,
+            MIDDLE_LINE_WIDTH,
+            context.gfx.drawable_size().1,
+        );
+        let middle_line_mesh = graphics::Mesh::new_rectangle(
+            context,
+            graphics::DrawMode::fill(),
+            middle_line_rectangle,
+            graphics::Color::from_rgb(127, 127, 127),
+        )?;
+
+        let mut score_text = graphics::Text::new(format!("{}   {}", player_1_score, player_2_score));
+        score_text.set_scale(graphics::PxScale::from(context.gfx.drawable_size().1 / 3.0));
+        let text_dimensions = score_text.measure(context)?;
+        let score_position = Vec2::new(
+            context.gfx.drawable_size().0 / 2.0 - text_dimensions.x / 2.0,
+            context.gfx.drawable_size().1 / 2.0 - text_dimensions.y / 2.0,
+        );
+
+        Ok(MainState {
             player_1_position: Vec2::new(RACKET_OFFSET, screen_height_center),
             player_2_position: Vec2::new(screen_width - RACKET_OFFSET, screen_height_center),
-            player_1_score: 0,
-            player_2_score: 0,
+            player_1_score,
+            player_2_score,
             ball_position: Vec2::new(screen_width_center, screen_height_center),
             ball_velocity: ball_velocity.normalize() * BALL_SPEED,
-        }
+            racket_mesh,
+            ball_mesh,
+            middle_line_mesh,
+            score_text,
+            score_position,
+        })
     }
 }
 
@@ -118,44 +161,16 @@ impl event::EventHandler for MainState {
     fn draw(&mut self, context: &mut ggez::Context) -> GameResult {
         let mut canvas = graphics::Canvas::from_frame(context, graphics::Color::BLACK);
 
-        let racket_rectangle = graphics::Rect::new(-RACKET_WIDTH_HALF, -RACKET_HEIGHT_HALF, RACKET_WIDTH, RACKET_HEIGHT);
-        let racket_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), racket_rectangle, graphics::Color::WHITE)?;
-
-        let ball_rectangle = graphics::Rect::new(-BALL_SIZE / 2.0, -BALL_SIZE / 2.0, BALL_SIZE, BALL_SIZE);
-        let ball_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), ball_rectangle, graphics::Color::WHITE)?;
-
-        // Draw scores
-        let mut score_text = graphics::Text::new(format!("{}   {}", self.player_1_score, self.player_2_score));
-        score_text.set_scale(graphics::PxScale::from(context.gfx.drawable_size().1 / 3.0));
-        let text_dimensions = score_text.measure(context)?;
-        let score_position = Vec2::new(
-            context.gfx.drawable_size().0 / 2.0 - text_dimensions.x / 2.0,
-            context.gfx.drawable_size().1 / 2.0 - text_dimensions.y / 2.0,
-        );
         canvas.draw(
-            &score_text,
-            graphics::DrawParam::default().dest(score_position).color(graphics::Color::from_rgb(50, 50, 50)),
+            &self.score_text,
+            graphics::DrawParam::default()
+                .dest(self.score_position)
+                .color(graphics::Color::from_rgb(50, 50, 50)),
         );
-
-        // Draw middle line
-        let middle_line_rectangle = graphics::Rect::new(
-            context.gfx.drawable_size().0 / 2.0 - MIDDLE_LINE_WIDTH / 2.0,
-            0.0,
-            MIDDLE_LINE_WIDTH,
-            context.gfx.drawable_size().1,
-        );
-        let middle_line_mesh = graphics::Mesh::new_rectangle(
-            context,
-            graphics::DrawMode::fill(),
-            middle_line_rectangle,
-            graphics::Color::from_rgb(127, 127, 127),
-        )?;
-        canvas.draw(&middle_line_mesh, graphics::DrawParam::default());
-
-        // Draw rackets and ball
-        canvas.draw(&racket_mesh, graphics::DrawParam::default().dest(self.player_1_position));
-        canvas.draw(&racket_mesh, graphics::DrawParam::default().dest(self.player_2_position));
-        canvas.draw(&ball_mesh, graphics::DrawParam::default().dest(self.ball_position));
+        canvas.draw(&self.middle_line_mesh, graphics::DrawParam::default());
+        canvas.draw(&self.racket_mesh, graphics::DrawParam::default().dest(self.player_1_position));
+        canvas.draw(&self.racket_mesh, graphics::DrawParam::default().dest(self.player_2_position));
+        canvas.draw(&self.ball_mesh, graphics::DrawParam::default().dest(self.ball_position));
 
         canvas.finish(context)?;
         Ok(())
