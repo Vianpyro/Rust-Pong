@@ -1,11 +1,11 @@
 use ggez::{GameResult, glam::Vec2, graphics, input::keyboard::KeyCode};
 
 const RACKET_SPEED: f32 = 650.0;
-
-const RACKET_HEIGHT: f32 = 150.0;
-const RACKET_WIDTH: f32 = 20.0;
-const RACKET_HEIGHT_HALF: f32 = RACKET_HEIGHT / 2.0;
-const RACKET_WIDTH_HALF: f32 = RACKET_WIDTH / 2.0;
+pub const RACKET_HEIGHT: f32 = 150.0;
+pub const RACKET_WIDTH: f32 = 20.0;
+pub const RACKET_HEIGHT_HALF: f32 = RACKET_HEIGHT / 2.0;
+pub const RACKET_WIDTH_HALF: f32 = RACKET_WIDTH / 2.0;
+pub const RACKET_OFFSET: f32 = RACKET_WIDTH * 2.0;
 
 pub struct Racket {
     pub pos_y: f32,
@@ -33,7 +33,7 @@ impl Racket {
         }
     }
 
-    pub fn draw(&self, canvas: &mut graphics::Canvas) {
+    pub fn draw_on_canvas(&self, canvas: &mut graphics::Canvas) {
         let draw_params = graphics::DrawParam::default().dest(Vec2::new(self.pos_x, self.pos_y));
         canvas.draw(&self.racket_mesh, draw_params);
     }

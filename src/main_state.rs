@@ -1,13 +1,8 @@
-use crate::racket;
+use crate::racket::*;
 use ggez::{GameResult, event, glam::Vec2, graphics};
 use rand::Rng;
 
 const BALL_SPEED: f32 = 500.0;
-const RACKET_HEIGHT: f32 = 150.0;
-const RACKET_WIDTH: f32 = 20.0;
-const RACKET_HEIGHT_HALF: f32 = RACKET_HEIGHT / 2.0;
-const RACKET_WIDTH_HALF: f32 = RACKET_WIDTH / 2.0;
-const RACKET_OFFSET: f32 = RACKET_WIDTH * 2.0;
 const BALL_SIZE: f32 = 20.0;
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
@@ -24,8 +19,8 @@ fn randomize_velocity(vector: &mut Vec2, x: f32, y: f32) {
 }
 
 pub struct MainState {
-    player_1: racket::Racket,
-    player_2: racket::Racket,
+    player_1: Racket,
+    player_2: Racket,
     player_1_score: u32,
     player_2_score: u32,
     ball_position: Vec2,
@@ -73,8 +68,8 @@ impl MainState {
             context.gfx.drawable_size().0 / 2.0 - text_dimensions.x / 2.0,
             context.gfx.drawable_size().1 / 2.0 - text_dimensions.y / 2.0,
         );
-        let player_1 = racket::Racket::new(RACKET_OFFSET, screen_height_center, context)?;
-        let player_2 = racket::Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context)?;
+        let player_1 = Racket::new(RACKET_OFFSET, screen_height_center, context)?;
+        let player_2 = Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context)?;
 
         Ok(MainState {
             player_1,
@@ -161,8 +156,8 @@ impl event::EventHandler for MainState {
                 .color(graphics::Color::from_rgb(50, 50, 50)),
         );
         canvas.draw(&self.middle_line_mesh, graphics::DrawParam::default());
-        self.player_1.draw(&mut canvas);
-        self.player_2.draw(&mut canvas);
+        self.player_1.draw_on_canvas(&mut canvas);
+        self.player_2.draw_on_canvas(&mut canvas);
         canvas.draw(&self.ball_mesh, graphics::DrawParam::default().dest(self.ball_position));
 
         canvas.finish(context)?;
