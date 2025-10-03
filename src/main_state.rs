@@ -1,8 +1,8 @@
 use ggez::{GameResult, event, glam::Vec2, graphics, input::keyboard::KeyCode};
 use rand::Rng;
 
-const RACKET_SPEED: f32 = 1.0;
-const BALL_SPEED: f32 = 100.0;
+const RACKET_SPEED: f32 = 650.0;
+const BALL_SPEED: f32 = 400.0;
 const RACKET_HEIGHT: f32 = 150.0;
 const RACKET_WIDTH: f32 = 20.0;
 const RACKET_HEIGHT_HALF: f32 = RACKET_HEIGHT / 2.0;
@@ -12,7 +12,7 @@ const BALL_SIZE: f32 = 20.0;
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
 fn move_racket(position: &mut Vec2, up_key: KeyCode, down_key: KeyCode, context: &mut ggez::Context, delta_time: f32) {
-    let racket_speed = RACKET_SPEED * delta_time * 1000.0;
+    let racket_speed = RACKET_SPEED * delta_time;
 
     if context.keyboard.is_key_pressed(up_key) && position.y - RACKET_HEIGHT_HALF > 0.0 {
         position.y -= racket_speed;
@@ -58,7 +58,7 @@ impl MainState {
             player_1_score: 0,
             player_2_score: 0,
             ball_position: Vec2::new(screen_width_center, screen_height_center),
-            ball_velocity,
+            ball_velocity: ball_velocity.normalize() * BALL_SPEED,
         }
     }
 }
@@ -77,19 +77,25 @@ impl event::EventHandler for MainState {
         if self.ball_position.x - BALL_SIZE / 2.0 <= self.player_1_position.x + RACKET_WIDTH_HALF
             && self.ball_position.y >= self.player_1_position.y - RACKET_HEIGHT_HALF
             && self.ball_position.y <= self.player_1_position.y + RACKET_HEIGHT_HALF
+            && self.ball_velocity.x < 0.0
         {
             self.ball_velocity.x = -self.ball_velocity.x;
             let offset = (self.ball_position.y - self.player_1_position.y) / RACKET_HEIGHT_HALF;
             self.ball_velocity.y = BALL_SPEED * offset;
+
+            self.ball_velocity = self.ball_velocity.normalize() * BALL_SPEED;
         }
 
         if self.ball_position.x + BALL_SIZE / 2.0 >= self.player_2_position.x - RACKET_WIDTH_HALF
             && self.ball_position.y >= self.player_2_position.y - RACKET_HEIGHT_HALF
             && self.ball_position.y <= self.player_2_position.y + RACKET_HEIGHT_HALF
+            && self.ball_velocity.x > 0.0
         {
             self.ball_velocity.x = -self.ball_velocity.x;
             let offset = (self.ball_position.y - self.player_2_position.y) / RACKET_HEIGHT_HALF;
             self.ball_velocity.y = BALL_SPEED * offset;
+
+            self.ball_velocity = self.ball_velocity.normalize() * BALL_SPEED;
         }
 
         if self.ball_position.x < 0.0 {
