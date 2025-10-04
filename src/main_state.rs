@@ -81,12 +81,12 @@ impl event::EventHandler for MainState {
 
         // Score update
         if self.ball.position.x < 0.0 {
-            self.score.increment_p2();
+            self.score.increment_p2(context)?;
             self.ball.reset(context.gfx.drawable_size().0 / 2.0, context.gfx.drawable_size().1 / 2.0);
         }
 
         if self.ball.position.x > context.gfx.drawable_size().0 {
-            self.score.increment_p1();
+            self.score.increment_p1(context)?;
             self.ball.reset(context.gfx.drawable_size().0 / 2.0, context.gfx.drawable_size().1 / 2.0);
         }
 
