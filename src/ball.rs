@@ -1,8 +1,8 @@
 use ggez::{Context, GameResult, glam::Vec2, graphics};
 use rand::Rng;
 
-const BALL_SPEED: f32 = 500.0;
-const BALL_SIZE: f32 = 20.0;
+pub const BALL_SPEED: f32 = 500.0;
+pub const BALL_SIZE: f32 = 20.0;
 
 pub struct Ball {
     pub position: Vec2,
