@@ -1,7 +1,9 @@
 #![windows_subsystem = "windows"]
 
+mod ball;
 mod main_state;
 mod racket;
+mod score;
 
 use crate::main_state::MainState;
 use ggez::{
