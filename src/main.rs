@@ -2,6 +2,7 @@
 
 mod ball;
 mod main_state;
+mod physics;
 mod racket;
 mod score;
 

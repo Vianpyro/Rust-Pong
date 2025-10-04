@@ -1,4 +1,5 @@
 use crate::ball::*;
+use crate::physics::*;
 use crate::racket::*;
 use crate::score::Score;
 use ggez::{Context, GameResult, event, graphics, input::keyboard::KeyCode};
@@ -7,8 +8,8 @@ use graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
 pub struct MainState {
-    player_1: Racket,
-    player_2: Racket,
+    player_left: Racket,
+    player_right: Racket,
     ball: Ball,
     middle_line_mesh: Mesh,
     score: Score,
@@ -30,8 +31,8 @@ impl MainState {
         let score = Score::new(context)?;
 
         Ok(MainState {
-            player_1: Racket::new(RACKET_OFFSET, screen_height_center, context)?,
-            player_2: Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context)?,
+            player_left: Racket::new(RACKET_OFFSET, screen_height_center, context)?,
+            player_right: Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context)?,
             ball: Ball::new(screen_width_center, screen_height_center, context)?,
             middle_line_mesh,
             score,
@@ -44,49 +45,23 @@ impl event::EventHandler for MainState {
         let delta_time = context.time.delta().as_secs_f32();
 
         // Move rackets (player 1: W/S, player 2: Up/Down)
-        self.player_1.move_racket(KeyCode::W, KeyCode::S, context, delta_time);
-        self.player_2.move_racket(KeyCode::Up, KeyCode::Down, context, delta_time);
+        self.player_left.move_racket(KeyCode::W, KeyCode::S, context, delta_time);
+        self.player_right.move_racket(KeyCode::Up, KeyCode::Down, context, delta_time);
 
-        if self.ball.position.y - BALL_SIZE / 2.0 <= 0.0 && self.ball.velocity.y < 0.0
-            || self.ball.position.y + BALL_SIZE / 2.0 >= context.gfx.drawable_size().1 && self.ball.velocity.y > 0.0
-        {
-            self.ball.velocity.y = -self.ball.velocity.y;
-        }
+        bounce_borders(&mut self.ball, context.gfx.drawable_size().1);
 
-        // Left racket collision
-        if self.ball.position.x - BALL_SIZE / 2.0 <= self.player_1.pos_x + RACKET_WIDTH_HALF
-            && self.ball.position.y >= self.player_1.pos_y - RACKET_HEIGHT_HALF
-            && self.ball.position.y <= self.player_1.pos_y + RACKET_HEIGHT_HALF
-            && self.ball.velocity.x < 0.0
-        {
-            self.ball.velocity.x = -self.ball.velocity.x;
-            let offset = (self.ball.position.y - self.player_1.pos_y) / RACKET_HEIGHT_HALF;
-            self.ball.velocity.y = BALL_SPEED * offset;
+        racket_collision(&mut self.ball, &self.player_left);
+        racket_collision(&mut self.ball, &self.player_right);
 
-            self.ball.velocity = self.ball.velocity.normalize() * BALL_SPEED;
-        }
-
-        // Right racket collision
-        if self.ball.position.x + BALL_SIZE / 2.0 >= self.player_2.pos_x - RACKET_WIDTH_HALF
-            && self.ball.position.y >= self.player_2.pos_y - RACKET_HEIGHT_HALF
-            && self.ball.position.y <= self.player_2.pos_y + RACKET_HEIGHT_HALF
-            && self.ball.velocity.x > 0.0
-        {
-            self.ball.velocity.x = -self.ball.velocity.x;
-            let offset = (self.ball.position.y - self.player_2.pos_y) / RACKET_HEIGHT_HALF;
-            self.ball.velocity.y = BALL_SPEED * offset;
-
-            self.ball.velocity = self.ball.velocity.normalize() * BALL_SPEED;
-        }
-
-        // Score update
-        if self.ball.position.x < 0.0 {
-            self.score.increment_p2(context)?;
-            self.ball.reset(context.gfx.drawable_size().0 / 2.0, context.gfx.drawable_size().1 / 2.0);
-        }
-
-        if self.ball.position.x > context.gfx.drawable_size().0 {
-            self.score.increment_p1(context)?;
+        if let Some(scored) = check_score(&self.ball, context.gfx.drawable_size().0) {
+            match scored {
+                Player::Left => {
+                    self.score.increment_p1(context)?;
+                }
+                Player::Right => {
+                    self.score.increment_p2(context)?;
+                }
+            }
             self.ball.reset(context.gfx.drawable_size().0 / 2.0, context.gfx.drawable_size().1 / 2.0);
         }
 
@@ -100,8 +75,8 @@ impl event::EventHandler for MainState {
 
         self.score.draw_on_canvas(&mut canvas);
         canvas.draw(&self.middle_line_mesh, DrawParam::default());
-        self.player_1.draw_on_canvas(&mut canvas);
-        self.player_2.draw_on_canvas(&mut canvas);
+        self.player_left.draw_on_canvas(&mut canvas);
+        self.player_right.draw_on_canvas(&mut canvas);
         self.ball.draw_on_canvas(&mut canvas);
 
         canvas.finish(context)?;
