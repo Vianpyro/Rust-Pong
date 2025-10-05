@@ -37,8 +37,17 @@ jobs:
       - name: Build
         run: cargo build --release
 
-      - name: Upload binary
+      - name: Copy binary to dist folder
+        run: |
+          mkdir -p dist
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cp target/release/Pong.exe dist/
+          else
+            cp target/release/Pong dist/
+          fi
+
+      - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.os }}
-          path: ${{ runner.os == 'Windows' && 'target/release/Pong.exe' || 'target/release/Pong' }}
+          name: Pong-${{ matrix.os }}
+          path: dist/
