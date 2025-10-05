@@ -34,4 +34,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}
-          path: target/release/your_game_binary_name
+          path: target/release/${{ github.event.repository.name }}-${{ matrix.os }}
