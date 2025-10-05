@@ -39,9 +39,9 @@ jobs:
         run: |
           mkdir -p dist
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            cp target/release/Pong.exe dist/
+            cp target/release/rust-pong.exe dist/
           else
-            cp target/release/Pong dist/
+            cp target/release/rust-pong dist/
           fi
 
       - name: Upload binary artifact
