@@ -1,0 +1,75 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libasound2-dev libudev-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Build
+        run: cargo build --release
+
+      - name: List release files
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ls target\\release
+          else
+            ls -l target/release
+          fi
+        shell: bash
+
+      - name: Copy binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist
+          if [ -f target/release/rust-pong ]; then
+            cp target/release/rust-pong dist/
+          elif [ -f target/release/Rust-Pong ]; then
+            cp target/release/Rust-Pong dist/
+          fi
+        shell: bash
+
+      - name: Copy binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir dist
+          copy target\release\rust-pong.exe dist\
+        shell: pwsh
+
+      - name: List dist files
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ls dist
+          else
+            ls -l dist
+          fi
+        shell: bash
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pong-${{ matrix.os }}
+          path: dist/
