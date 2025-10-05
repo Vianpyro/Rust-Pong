@@ -45,7 +45,11 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           mkdir -p dist
-          cp target/release/rust-pong dist/
+          if [ -f target/release/rust-pong ]; then
+            cp target/release/rust-pong dist/
+          elif [ -f target/release/Rust-Pong ]; then
+            cp target/release/Rust-Pong dist/
+          fi
         shell: bash
 
       - name: Copy binary (Windows)
@@ -63,3 +67,9 @@ jobs:
             ls -l dist
           fi
         shell: bash
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pong-${{ matrix.os }}
+          path: dist/
