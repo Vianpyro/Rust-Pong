@@ -23,7 +23,9 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y pkg-config libasound2-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libasound2-dev libudev-dev
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -39,4 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.os }}
-          path: target/release/${{ runner.os == 'Windows' && 'Pong.exe' || 'Pong' }}
+          path: ${{ runner.os == 'Windows' && 'target/release/Pong.exe' || 'target/release/Pong' }}
