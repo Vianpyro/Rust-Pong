@@ -1,5 +1,5 @@
 use crate::ball::Ball;
-use crate::ball::{BALL_SIZE, BALL_SPEED};
+use crate::ball::{BALL_SIZE, BALL_SPEED_INCREMENT, BALL_SPEED_MAX};
 use crate::racket::{RACKET_HEIGHT_HALF, RACKET_WIDTH_HALF, Racket};
 
 pub enum Player {
@@ -42,8 +42,9 @@ pub fn racket_collision(ball: &mut Ball, racket: &Racket) -> bool {
     if horizontal_overlap && vertical_overlap && approaching {
         ball.velocity.x = -ball.velocity.x;
         let offset = (ball.position.y - racket.pos_y) / RACKET_HEIGHT_HALF;
-        ball.velocity.y = BALL_SPEED * offset;
-        ball.velocity = ball.velocity.normalize() * BALL_SPEED;
+        ball.velocity.y = ball.speed * offset;
+        ball.speed = (ball.speed * BALL_SPEED_INCREMENT).min(BALL_SPEED_MAX);
+        ball.velocity = ball.velocity.normalize() * ball.speed;
         return true;
     }
 
