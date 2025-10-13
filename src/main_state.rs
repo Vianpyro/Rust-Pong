@@ -1,6 +1,6 @@
 use crate::{ball::*, debug::DebugInfo, physics::*, racket::*, score::Score};
-use ggez::{Context, GameResult, event, graphics, input::keyboard::KeyCode};
-use graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
+use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
+use ggez::{Context, GameResult, event, input::keyboard::KeyCode};
 
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 

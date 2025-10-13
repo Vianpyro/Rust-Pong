@@ -1,5 +1,5 @@
-use ggez::{Context, GameResult, glam::Vec2, graphics};
-use graphics::{Canvas, Color, DrawParam, PxScale, Text};
+use ggez::graphics::{Canvas, Color, DrawParam, PxScale, Text};
+use ggez::{Context, GameResult, glam::Vec2};
 
 pub struct DebugInfo {
     enabled: bool,
