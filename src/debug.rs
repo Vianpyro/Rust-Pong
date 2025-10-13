@@ -26,7 +26,7 @@ impl DebugInfo {
         }
 
         let fps = context.time.fps();
-        let delta = context.time.delta().as_secs_f64() * 1000.0; // ms
+        let delta = context.time.delta().as_secs_f64() * 1000.0;
 
         self.fps_text = Text::new(format!("FPS: {:.0}\nFrame time: {:.2}ms", fps, delta));
         self.fps_text.set_scale(PxScale::from(20.0));
