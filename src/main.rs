@@ -1,6 +1,7 @@
 #![windows_subsystem = "windows"]
 
 mod ball;
+mod debug;
 mod main_state;
 mod physics;
 mod racket;
