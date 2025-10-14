@@ -75,7 +75,7 @@ jobs:
             echo "path_Rust_Pong=$path_Rust_Pong"
             echo "path_rust_pong_exe=$path_rust_pong_exe"
             echo "path_Rust_Pong_exe=$path_Rust_Pong_exe"
-          } >> $GITHUB_OUTPUT
+          } >>"$GITHUB_OUTPUT"
 
       - name: Upload linux/macOS Rust-Pong
         if: ${{ steps.check_artifacts.outputs.file_Rust_Pong == 'true' }}
