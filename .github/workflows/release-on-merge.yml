@@ -16,7 +16,6 @@ jobs:
   create_release:
     name: Create Release and Upload Assets
     needs: build
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
