@@ -49,12 +49,20 @@ impl event::EventHandler for MainState {
         }
 
         // Move rackets (player 1: W/S, player 2: Up/Down)
+        use ggez::input::keyboard::KeyCode;
+        use std::collections::HashSet;
+        let mut pressed = HashSet::new();
+        for k in context.keyboard.pressed_keys() {
+            pressed.insert(*k);
+        }
+
         let game_state = crate::controller::GameState {
             ball_pos: self.ball.position,
             ball_vel: self.ball.velocity,
             racket_pos: self.player_left.pos_y,
             opponent_pos: self.player_right.pos_y,
             screen_height: context.gfx.drawable_size().1,
+            pressed_keys: pressed,
         };
 
         self.player_left.update(&game_state, delta_time);

@@ -1,5 +1,6 @@
 use ggez::glam::Vec2;
 use ggez::input::keyboard::KeyCode;
+use std::collections::HashSet;
 
 pub trait Controller {
     fn get_action(&mut self, game_state: &GameState) -> RacketAction;
@@ -17,6 +18,7 @@ pub struct GameState {
     pub racket_pos: f32,
     pub opponent_pos: f32,
     pub screen_height: f32,
+    pub pressed_keys: HashSet<KeyCode>,
 }
 
 pub struct HumanController {
@@ -32,7 +34,13 @@ impl HumanController {
 
 impl Controller for HumanController {
     fn get_action(&mut self, _game_state: &GameState) -> RacketAction {
-        RacketAction::Stay
+        if _game_state.pressed_keys.contains(&self.up_key) {
+            RacketAction::MoveUp
+        } else if _game_state.pressed_keys.contains(&self.down_key) {
+            RacketAction::MoveDown
+        } else {
+            RacketAction::Stay
+        }
     }
 }
 
