@@ -3,7 +3,7 @@ use ggez::input::keyboard::KeyCode;
 use std::collections::HashSet;
 
 pub trait Controller {
-    fn get_action(&mut self, game_state: &GameState) -> RacketAction;
+    fn get_action(&mut self, input: &ControllerInput) -> RacketAction;
 }
 
 pub enum RacketAction {
@@ -12,13 +12,28 @@ pub enum RacketAction {
     Stay,
 }
 
-pub struct GameState {
+pub struct ControllerInput {
     pub ball_pos: Vec2,
     pub ball_vel: Vec2,
     pub racket_pos: f32,
     pub opponent_pos: f32,
     pub screen_height: f32,
     pub pressed_keys: HashSet<KeyCode>,
+}
+
+impl ControllerInput {
+    // Convert the input to a simple float feature vector suitable for feeding into a neural network or ML model.
+    pub fn to_feature_vec(&self) -> Vec<f32> {
+        vec![
+            self.ball_pos.x,
+            self.ball_pos.y,
+            self.ball_vel.x,
+            self.ball_vel.y,
+            self.racket_pos,
+            self.opponent_pos,
+            self.screen_height,
+        ]
+    }
 }
 
 pub struct HumanController {
@@ -33,10 +48,10 @@ impl HumanController {
 }
 
 impl Controller for HumanController {
-    fn get_action(&mut self, _game_state: &GameState) -> RacketAction {
-        if _game_state.pressed_keys.contains(&self.up_key) {
+    fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
+        if input.pressed_keys.contains(&self.up_key) {
             RacketAction::MoveUp
-        } else if _game_state.pressed_keys.contains(&self.down_key) {
+        } else if input.pressed_keys.contains(&self.down_key) {
             RacketAction::MoveDown
         } else {
             RacketAction::Stay
@@ -53,10 +68,10 @@ impl AIController {
 }
 
 impl Controller for AIController {
-    fn get_action(&mut self, game_state: &GameState) -> RacketAction {
-        if game_state.ball_pos.y < game_state.racket_pos {
+    fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
+        if input.ball_pos.y < input.racket_pos {
             RacketAction::MoveUp
-        } else if game_state.ball_pos.y > game_state.racket_pos {
+        } else if input.ball_pos.y > input.racket_pos {
             RacketAction::MoveDown
         } else {
             RacketAction::Stay

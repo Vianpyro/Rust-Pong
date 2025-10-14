@@ -1,4 +1,4 @@
-use crate::controller::Controller;
+use crate::controller::{Controller, RacketAction::*};
 use ggez::graphics::{Canvas, Color, DrawParam, Mesh, Rect};
 use ggez::{Context, GameResult};
 
@@ -33,12 +33,25 @@ impl Racket {
         canvas.draw(&self.racket_mesh, DrawParam::default().dest([self.pos_x, self.pos_y]));
     }
 
-    pub fn update(&mut self, game_state: &crate::controller::GameState, delta_time: f32) {
-        use crate::controller::RacketAction::*;
-        match self.controller.get_action(game_state) {
-            MoveUp => self.pos_y -= RACKET_SPEED * delta_time,
-            MoveDown => self.pos_y += RACKET_SPEED * delta_time,
+    pub fn update(&mut self, input: &crate::controller::ControllerInput, delta_time: f32) {
+        match self.controller.get_action(input) {
+            MoveUp => {
+                self.pos_y -= RACKET_SPEED * delta_time;
+            }
+            MoveDown => {
+                self.pos_y += RACKET_SPEED * delta_time;
+            }
             Stay => {}
+        }
+
+        // Keep the racket inside the screen bounds
+        let half_height = RACKET_HEIGHT / 2.0;
+        if self.pos_y < half_height {
+            self.pos_y = half_height;
+        }
+        let lower_limit = input.screen_height - half_height;
+        if self.pos_y > lower_limit {
+            self.pos_y = lower_limit;
         }
     }
 }

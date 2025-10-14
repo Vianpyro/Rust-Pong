@@ -1,6 +1,6 @@
-use crate::{ball::*, controller::Controller, debug::DebugInfo, physics::*, racket::*, score::Score};
+use crate::{ball::*, controller::Controller, controller::ControllerInput, debug::DebugInfo, physics::*, racket::*, score::Score};
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
-use ggez::{Context, GameResult, event, input::keyboard::KeyCode};
+use ggez::{Context, GameResult, event};
 
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
@@ -56,7 +56,7 @@ impl event::EventHandler for MainState {
             pressed.insert(*k);
         }
 
-        let game_state = crate::controller::GameState {
+        let input = ControllerInput {
             ball_pos: self.ball.position,
             ball_vel: self.ball.velocity,
             racket_pos: self.player_left.pos_y,
@@ -65,8 +65,8 @@ impl event::EventHandler for MainState {
             pressed_keys: pressed,
         };
 
-        self.player_left.update(&game_state, delta_time);
-        self.player_right.update(&game_state, delta_time);
+        self.player_left.update(&input, delta_time);
+        self.player_right.update(&input, delta_time);
 
         bounce_borders(&mut self.ball, context.gfx.drawable_size().1);
 
