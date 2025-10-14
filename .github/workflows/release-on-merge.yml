@@ -80,8 +80,9 @@ jobs:
       - name: Upload linux/macOS Rust-Pong
         if: ${{ steps.check_artifacts.outputs.file_Rust_Pong == 'true' }}
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ steps.check_artifacts.outputs.path_Rust_Pong }}
           asset_name: Rust-Pong
@@ -90,8 +91,9 @@ jobs:
       - name: Upload Windows rust-pong.exe
         if: ${{ steps.check_artifacts.outputs.file_rust_pong_exe == 'true' }}
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ steps.check_artifacts.outputs.path_rust_pong_exe }}
           asset_name: rust-pong.exe
