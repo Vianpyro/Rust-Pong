@@ -1,6 +1,7 @@
 use crate::{ball::*, controller::Controller, controller::ControllerInput, debug::DebugInfo, physics::*, racket::*, score::Score};
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
-use ggez::{Context, GameResult, event};
+use ggez::{Context, GameResult, event, input::keyboard::KeyCode};
+use std::collections::HashSet;
 
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
@@ -49,8 +50,6 @@ impl event::EventHandler for MainState {
         }
 
         // Move rackets (player 1: W/S, player 2: Up/Down)
-        use ggez::input::keyboard::KeyCode;
-        use std::collections::HashSet;
         let mut pressed = HashSet::new();
         for k in context.keyboard.pressed_keys() {
             pressed.insert(*k);
