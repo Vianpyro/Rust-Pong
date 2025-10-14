@@ -1,10 +1,10 @@
-use ggez::{Context, GameResult, glam::Vec2, graphics};
-use graphics::{Color, DrawParam, PxScale, Text};
+use ggez::graphics::{Canvas, Color, DrawParam, PxScale, Text};
+use ggez::{Context, GameResult, glam::Vec2};
 
 pub struct Score {
     p1: u32,
     p2: u32,
-    text: graphics::Text,
+    text: Text,
     position: Vec2,
     scale: f32,
 }
@@ -46,7 +46,7 @@ impl Score {
         self.update_text(context)
     }
 
-    pub fn draw_on_canvas(&self, canvas: &mut graphics::Canvas) {
+    pub fn draw_on_canvas(&self, canvas: &mut Canvas) {
         canvas.draw(&self.text, DrawParam::default().dest(self.position).color(Color::from_rgb(50, 50, 50)));
     }
 }

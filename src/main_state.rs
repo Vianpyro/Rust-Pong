@@ -1,9 +1,6 @@
-use crate::ball::*;
-use crate::physics::*;
-use crate::racket::*;
-use crate::score::Score;
-use ggez::{Context, GameResult, event, graphics, input::keyboard::KeyCode};
-use graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
+use crate::{ball::*, debug::DebugInfo, physics::*, racket::*, score::Score};
+use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
+use ggez::{Context, GameResult, event, input::keyboard::KeyCode};
 
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
 
@@ -13,6 +10,7 @@ pub struct MainState {
     ball: Ball,
     middle_line_mesh: Mesh,
     score: Score,
+    debug: DebugInfo,
 }
 
 impl MainState {
@@ -36,6 +34,7 @@ impl MainState {
             ball: Ball::new(screen_width_center, screen_height_center, context)?,
             middle_line_mesh,
             score,
+            debug: DebugInfo::new(),
         })
     }
 }
@@ -43,6 +42,11 @@ impl MainState {
 impl event::EventHandler for MainState {
     fn update(&mut self, context: &mut Context) -> GameResult {
         let delta_time = context.time.delta().as_secs_f32();
+        self.debug.update(context)?;
+
+        if context.keyboard.is_key_just_pressed(KeyCode::F1) {
+            self.debug.toggle();
+        }
 
         // Move rackets (player 1: W/S, player 2: Up/Down)
         self.player_left.move_racket(KeyCode::W, KeyCode::S, context, delta_time);
@@ -78,6 +82,8 @@ impl event::EventHandler for MainState {
         self.player_left.draw_on_canvas(&mut canvas);
         self.player_right.draw_on_canvas(&mut canvas);
         self.ball.draw_on_canvas(&mut canvas);
+
+        self.debug.draw(&mut canvas);
 
         canvas.finish(context)?;
         Ok(())

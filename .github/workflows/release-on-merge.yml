@@ -1,0 +1,96 @@
+name: Create Release on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-game-binary.yml
+    secrets: inherit
+
+  create_release:
+    name: Create Release and Upload Assets
+    needs: build
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.merge_commit_sha }}
+          release_name: "PR #${{ github.event.pull_request.number }} merged"
+          body: "Automatically generated release for PR #${{ github.event.pull_request.number }}"
+          draft: false
+          prerelease: false
+
+      - name: Check for artifacts
+        id: check_artifacts
+        run: |
+          # initialize local vars
+          file_rust_pong=false
+          file_Rust_Pong=false
+          file_rust_pong_exe=false
+          file_Rust_Pong_exe=false
+
+          path_rust_pong=""
+          path_Rust_Pong=""
+          path_rust_pong_exe=""
+          path_Rust_Pong_exe=""
+
+          # locate files under dist (download-artifact may create subfolders)
+          rp=$(find dist -type f -name 'rust-pong' -print -quit 2>/dev/null || true)
+          if [ -n "$rp" ]; then file_rust_pong=true; path_rust_pong="$rp"; fi
+
+          rP=$(find dist -type f -name 'Rust-Pong' -print -quit 2>/dev/null || true)
+          if [ -n "$rP" ]; then file_Rust_Pong=true; path_Rust_Pong="$rP"; fi
+
+          rpe=$(find dist -type f -name 'rust-pong.exe' -print -quit 2>/dev/null || true)
+          if [ -n "$rpe" ]; then file_rust_pong_exe=true; path_rust_pong_exe="$rpe"; fi
+
+          rPe=$(find dist -type f -name 'Rust-Pong.exe' -print -quit 2>/dev/null || true)
+          if [ -n "$rPe" ]; then file_Rust_Pong_exe=true; path_Rust_Pong_exe="$rPe"; fi
+
+          # emit outputs
+          {
+            echo "file_rust_pong=$file_rust_pong"
+            echo "file_Rust_Pong=$file_Rust_Pong"
+            echo "file_rust_pong_exe=$file_rust_pong_exe"
+            echo "file_Rust_Pong_exe=$file_Rust_Pong_exe"
+            echo "path_rust_pong=$path_rust_pong"
+            echo "path_Rust_Pong=$path_Rust_Pong"
+            echo "path_rust_pong_exe=$path_rust_pong_exe"
+            echo "path_Rust_Pong_exe=$path_Rust_Pong_exe"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Upload linux/macOS Rust-Pong
+        if: ${{ steps.check_artifacts.outputs.file_Rust_Pong == 'true' }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.check_artifacts.outputs.path_Rust_Pong }}
+          asset_name: Rust-Pong
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows rust-pong.exe
+        if: ${{ steps.check_artifacts.outputs.file_rust_pong_exe == 'true' }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.check_artifacts.outputs.path_rust_pong_exe }}
+          asset_name: rust-pong.exe
+          asset_content_type: application/octet-stream

@@ -1,4 +1,5 @@
-use ggez::{Context, GameResult, glam::Vec2, graphics, input::keyboard::KeyCode};
+use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
+use ggez::{Context, GameResult, glam::Vec2, input::keyboard::KeyCode};
 
 const RACKET_SPEED: f32 = 650.0;
 pub const RACKET_HEIGHT: f32 = 150.0;
@@ -10,13 +11,13 @@ pub const RACKET_OFFSET: f32 = RACKET_WIDTH * 2.0;
 pub struct Racket {
     pub pos_y: f32,
     pub pos_x: f32,
-    racket_mesh: graphics::Mesh,
+    racket_mesh: Mesh,
 }
 
 impl Racket {
     pub fn new(pos_x: f32, pos_y: f32, context: &mut Context) -> GameResult<Self> {
-        let racket_rectangle = graphics::Rect::new(-RACKET_WIDTH_HALF, -RACKET_HEIGHT_HALF, RACKET_WIDTH, RACKET_HEIGHT);
-        let racket_mesh = graphics::Mesh::new_rectangle(context, graphics::DrawMode::fill(), racket_rectangle, graphics::Color::WHITE)?;
+        let racket_rectangle = Rect::new(-RACKET_WIDTH_HALF, -RACKET_HEIGHT_HALF, RACKET_WIDTH, RACKET_HEIGHT);
+        let racket_mesh = Mesh::new_rectangle(context, DrawMode::fill(), racket_rectangle, Color::WHITE)?;
 
         Ok(Self { pos_x, pos_y, racket_mesh })
     }
@@ -33,8 +34,8 @@ impl Racket {
         }
     }
 
-    pub fn draw_on_canvas(&self, canvas: &mut graphics::Canvas) {
-        let draw_params = graphics::DrawParam::default().dest(Vec2::new(self.pos_x, self.pos_y));
+    pub fn draw_on_canvas(&self, canvas: &mut Canvas) {
+        let draw_params = DrawParam::default().dest(Vec2::new(self.pos_x, self.pos_y));
         canvas.draw(&self.racket_mesh, draw_params);
     }
 }

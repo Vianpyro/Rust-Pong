@@ -1,5 +1,4 @@
-use crate::ball::Ball;
-use crate::ball::{BALL_SIZE, BALL_SPEED_INCREMENT, BALL_SPEED_MAX};
+use crate::ball::{BALL_SIZE, BALL_SPEED_INCREMENT, BALL_SPEED_MAX, Ball};
 use crate::racket::{RACKET_HEIGHT_HALF, RACKET_WIDTH_HALF, Racket};
 
 pub enum Player {
