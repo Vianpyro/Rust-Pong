@@ -1,5 +1,6 @@
-use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
-use ggez::{Context, GameResult, glam::Vec2, input::keyboard::KeyCode};
+use crate::controller::Controller;
+use ggez::graphics::{Canvas, Color, DrawParam, Mesh, Rect};
+use ggez::{Context, GameResult};
 
 const RACKET_SPEED: f32 = 650.0;
 pub const RACKET_HEIGHT: f32 = 150.0;
@@ -12,30 +13,32 @@ pub struct Racket {
     pub pos_y: f32,
     pub pos_x: f32,
     racket_mesh: Mesh,
+    pub controller: Box<dyn Controller>,
 }
 
 impl Racket {
-    pub fn new(pos_x: f32, pos_y: f32, context: &mut Context) -> GameResult<Self> {
-        let racket_rectangle = Rect::new(-RACKET_WIDTH_HALF, -RACKET_HEIGHT_HALF, RACKET_WIDTH, RACKET_HEIGHT);
-        let racket_mesh = Mesh::new_rectangle(context, DrawMode::fill(), racket_rectangle, Color::WHITE)?;
+    pub fn new(x: f32, y: f32, context: &mut Context, controller: Box<dyn Controller>) -> GameResult<Self> {
+        let rect = Rect::new(-RACKET_WIDTH / 2.0, -RACKET_HEIGHT / 2.0, RACKET_WIDTH, RACKET_HEIGHT);
+        let racket_mesh = Mesh::new_rectangle(context, ggez::graphics::DrawMode::fill(), rect, Color::WHITE)?;
 
-        Ok(Self { pos_x, pos_y, racket_mesh })
-    }
-
-    pub fn move_racket(&mut self, up_key: KeyCode, down_key: KeyCode, context: &mut Context, delta_time: f32) {
-        let racket_speed = RACKET_SPEED * delta_time;
-
-        if context.keyboard.is_key_pressed(up_key) && self.pos_y - RACKET_HEIGHT_HALF > 0.0 {
-            self.pos_y -= racket_speed;
-        }
-
-        if context.keyboard.is_key_pressed(down_key) && self.pos_y + RACKET_HEIGHT_HALF < context.gfx.drawable_size().1 {
-            self.pos_y += racket_speed;
-        }
+        Ok(Self {
+            pos_x: x,
+            pos_y: y,
+            racket_mesh,
+            controller,
+        })
     }
 
     pub fn draw_on_canvas(&self, canvas: &mut Canvas) {
-        let draw_params = DrawParam::default().dest(Vec2::new(self.pos_x, self.pos_y));
-        canvas.draw(&self.racket_mesh, draw_params);
+        canvas.draw(&self.racket_mesh, DrawParam::default().dest([self.pos_x, self.pos_y]));
+    }
+
+    pub fn update(&mut self, game_state: &crate::controller::GameState, delta_time: f32) {
+        use crate::controller::RacketAction::*;
+        match self.controller.get_action(game_state) {
+            MoveUp => self.pos_y -= RACKET_SPEED * delta_time,
+            MoveDown => self.pos_y += RACKET_SPEED * delta_time,
+            Stay => {}
+        }
     }
 }

@@ -1,4 +1,4 @@
-use crate::{ball::*, debug::DebugInfo, physics::*, racket::*, score::Score};
+use crate::{ball::*, controller::Controller, debug::DebugInfo, physics::*, racket::*, score::Score};
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
 use ggez::{Context, GameResult, event, input::keyboard::KeyCode};
 
@@ -14,7 +14,7 @@ pub struct MainState {
 }
 
 impl MainState {
-    pub fn new(context: &mut Context) -> GameResult<Self> {
+    pub fn new(context: &mut Context, left_controller: Box<dyn Controller>, right_controller: Box<dyn Controller>) -> GameResult<Self> {
         let (screen_width, screen_height) = context.gfx.drawable_size();
         let (screen_width_center, screen_height_center) = (screen_width / 2.0, screen_height / 2.0);
 
@@ -29,8 +29,8 @@ impl MainState {
         let score = Score::new(context)?;
 
         Ok(MainState {
-            player_left: Racket::new(RACKET_OFFSET, screen_height_center, context)?,
-            player_right: Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context)?,
+            player_left: Racket::new(RACKET_OFFSET, screen_height_center, context, left_controller)?,
+            player_right: Racket::new(screen_width - RACKET_OFFSET, screen_height_center, context, right_controller)?,
             ball: Ball::new(screen_width_center, screen_height_center, context)?,
             middle_line_mesh,
             score,
@@ -49,8 +49,16 @@ impl event::EventHandler for MainState {
         }
 
         // Move rackets (player 1: W/S, player 2: Up/Down)
-        self.player_left.move_racket(KeyCode::W, KeyCode::S, context, delta_time);
-        self.player_right.move_racket(KeyCode::Up, KeyCode::Down, context, delta_time);
+        let game_state = crate::controller::GameState {
+            ball_pos: self.ball.position,
+            ball_vel: self.ball.velocity,
+            racket_pos: self.player_left.pos_y,
+            opponent_pos: self.player_right.pos_y,
+            screen_height: context.gfx.drawable_size().1,
+        };
+
+        self.player_left.update(&game_state, delta_time);
+        self.player_right.update(&game_state, delta_time);
 
         bounce_borders(&mut self.ball, context.gfx.drawable_size().1);
 
