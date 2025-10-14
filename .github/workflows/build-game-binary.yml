@@ -1,13 +1,12 @@
 name: Release Build
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+  workflow_call: {}
 
 jobs:
   build:
+    name: Build Game Binaries
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

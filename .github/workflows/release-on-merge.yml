@@ -1,0 +1,72 @@
+name: Create Release on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-game-binary.yml
+    with: {}
+    secrets: inherit
+
+  create_release:
+    name: Create Release and Upload Assets
+    needs: build
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ format('pr-{}-{}', github.event.pull_request.number, github.event.pull_request.merge_commit_sha) }}
+          release_name: ${{ format('PR #{} merged', github.event.pull_request.number) }}
+          body: Automatically generated release for PR #${{ github.event.pull_request.number }}
+          draft: false
+          prerelease: false
+
+      - name: Check for artifacts
+        id: check_artifacts
+        run: |
+          # initialize outputs
+          echo "file_rust_pong=false" >> $GITHUB_OUTPUT
+          echo "file_Rust_Pong=false" >> $GITHUB_OUTPUT
+          echo "file_rust_pong_exe=false" >> $GITHUB_OUTPUT
+          echo "file_Rust_Pong_exe=false" >> $GITHUB_OUTPUT
+          # detect files
+          if [ -f dist/rust-pong ]; then echo "file_rust_pong=true" >> $GITHUB_OUTPUT; fi
+          if [ -f dist/Rust-Pong ]; then echo "file_Rust_Pong=true" >> $GITHUB_OUTPUT; fi
+          if [ -f dist/rust-pong.exe ]; then echo "file_rust_pong_exe=true" >> $GITHUB_OUTPUT; fi
+          if [ -f dist/Rust-Pong.exe ]; then echo "file_Rust_Pong_exe=true" >> $GITHUB_OUTPUT; fi
+
+      - name: Upload linux/macOS Rust-Pong
+        if: ${{ steps.check_artifacts.outputs.file_Rust_Pong == 'true' }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/Rust-Pong
+          asset_name: Rust-Pong
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows rust-pong.exe
+        if: ${{ steps.check_artifacts.outputs.file_rust_pong_exe == 'true' }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/rust-pong.exe
+          asset_name: rust-pong.exe
+          asset_content_type: application/octet-stream
