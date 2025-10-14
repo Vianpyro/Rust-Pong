@@ -1,13 +1,15 @@
 name: Release Build
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+  workflow_call: {}
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build Game Binaries
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -32,15 +34,6 @@ jobs:
       - name: Build
         run: cargo build --release
 
-      - name: List release files
-        run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            ls target\\release
-          else
-            ls -l target/release
-          fi
-        shell: bash
-
       - name: Copy binary (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
@@ -58,15 +51,6 @@ jobs:
           mkdir dist
           copy target\release\rust-pong.exe dist\
         shell: pwsh
-
-      - name: List dist files
-        run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            ls dist
-          else
-            ls -l dist
-          fi
-        shell: bash
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
