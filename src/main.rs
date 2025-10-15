@@ -8,8 +8,7 @@ mod physics;
 mod racket;
 mod score;
 
-use crate::controller::AIController;
-use crate::{controller::HumanController, main_state::MainState};
+use crate::{controller::AIController, controller::HumanController, main_state::MainState};
 use ggez::conf::{FullscreenType, WindowMode};
 use ggez::{ContextBuilder, GameResult, event, input::keyboard::KeyCode};
 
