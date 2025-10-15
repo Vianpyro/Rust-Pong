@@ -128,10 +128,6 @@ pub struct AIController {
 }
 
 impl AIController {
-    pub fn new() -> Self {
-        Self::expert()
-    }
-
     pub fn easy() -> Self {
         Self {
             strategy: Box::new(ReactiveBehavior::new()),
