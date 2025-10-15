@@ -45,8 +45,8 @@ impl DebugInfo {
     }
 
     pub fn set_ball_info(&mut self, context: &mut Context, position: Vec2, velocity: Vec2, speed: f32) -> GameResult<()> {
-        self.ball_position_text = Text::new(format!("Ball pos: {:.1}, {:.1}", position.x, position.y));
-        self.ball_velocity_text = Text::new(format!("Ball vel: {:.1}, {:.1}", velocity.x, velocity.y));
+        self.ball_position_text = Text::new(format!("Ball position: {:.1}, {:.1}", position.x, position.y));
+        self.ball_velocity_text = Text::new(format!("Ball velocity: {:.1}, {:.1}", velocity.x, velocity.y));
         self.ball_speed_text = Text::new(format!("Ball speed: {:.1}", speed));
 
         let scale = PxScale::from(18.0);
