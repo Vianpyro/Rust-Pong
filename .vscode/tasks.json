@@ -11,6 +11,18 @@
       }
     },
     {
+      "label": "Update cargo",
+      "type": "shell",
+      "command": "cargo update",
+      "problemMatcher": [],
+      "presentation": {
+        "close": true
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+    },
+    {
       "label": "Build Project",
       "type": "shell",
       "command": "cargo build",
@@ -20,7 +32,8 @@
       },
       "runOptions": {
         "runOn": "folderOpen"
-      }
-    }
+      },
+      "dependsOn": "Update cargo"
+    },
   ]
 }
