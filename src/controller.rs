@@ -1,3 +1,4 @@
+use crate::racket::RACKET_HEIGHT_HALF;
 use ggez::glam::Vec2;
 use ggez::input::keyboard::KeyCode;
 use std::collections::HashSet;
@@ -69,9 +70,12 @@ impl AIController {
 
 impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
-        if input.ball_pos.y < input.racket_pos {
+        let top = input.racket_pos - RACKET_HEIGHT_HALF;
+        let bottom = input.racket_pos + RACKET_HEIGHT_HALF;
+
+        if input.ball_pos.y < top {
             RacketAction::MoveUp
-        } else if input.ball_pos.y > input.racket_pos {
+        } else if input.ball_pos.y > bottom {
             RacketAction::MoveDown
         } else {
             RacketAction::Stay

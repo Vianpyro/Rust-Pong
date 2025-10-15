@@ -55,17 +55,26 @@ impl event::EventHandler for MainState {
             pressed.insert(*k);
         }
 
-        let input = ControllerInput {
+        let input_left = ControllerInput {
             ball_pos: self.ball.position,
             ball_vel: self.ball.velocity,
             racket_pos: self.player_left.pos_y,
             opponent_pos: self.player_right.pos_y,
             screen_height: context.gfx.drawable_size().1,
+            pressed_keys: pressed.clone(),
+        };
+
+        let input_right = ControllerInput {
+            ball_pos: self.ball.position,
+            ball_vel: self.ball.velocity,
+            racket_pos: self.player_right.pos_y,
+            opponent_pos: self.player_left.pos_y,
+            screen_height: context.gfx.drawable_size().1,
             pressed_keys: pressed,
         };
 
-        self.player_left.update(&input, delta_time);
-        self.player_right.update(&input, delta_time);
+        self.player_left.update(&input_left, delta_time);
+        self.player_right.update(&input_right, delta_time);
 
         bounce_borders(&mut self.ball, context.gfx.drawable_size().1);
 
