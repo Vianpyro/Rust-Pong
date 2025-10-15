@@ -17,7 +17,9 @@ pub struct ControllerInput {
     pub ball_pos: Vec2,
     pub ball_vel: Vec2,
     pub racket_pos: f32,
+    pub racket_x: f32,
     pub opponent_pos: f32,
+    pub screen_width: f32,
     pub screen_height: f32,
     pub pressed_keys: HashSet<KeyCode>,
 }
@@ -31,6 +33,7 @@ impl ControllerInput {
             self.ball_vel.x,
             self.ball_vel.y,
             self.racket_pos,
+            self.racket_x,
             self.opponent_pos,
             self.screen_height,
         ]
@@ -72,13 +75,27 @@ impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
         let top = input.racket_pos - RACKET_HEIGHT_HALF;
         let bottom = input.racket_pos + RACKET_HEIGHT_HALF;
+        let approaching = (input.ball_vel.x > 0.0 && input.racket_x > input.ball_pos.x && input.screen_width / 2.0 < input.ball_pos.x)
+            || (input.ball_vel.x < 0.0 && input.racket_x < input.ball_pos.x && input.screen_width / 2.0 > input.ball_pos.x);
 
-        if input.ball_pos.y < top {
-            RacketAction::MoveUp
-        } else if input.ball_pos.y > bottom {
-            RacketAction::MoveDown
+        if approaching {
+            if input.ball_pos.y < top {
+                RacketAction::MoveUp
+            } else if input.ball_pos.y > bottom {
+                RacketAction::MoveDown
+            } else {
+                RacketAction::Stay
+            }
         } else {
-            RacketAction::Stay
+            let center = input.screen_height / 2.0;
+            let deadzone = RACKET_HEIGHT_HALF;
+            if input.racket_pos < center - deadzone {
+                RacketAction::MoveDown
+            } else if input.racket_pos > center + deadzone {
+                RacketAction::MoveUp
+            } else {
+                RacketAction::Stay
+            }
         }
     }
 }
