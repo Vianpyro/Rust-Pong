@@ -60,8 +60,6 @@ impl event::EventHandler for MainState {
             ball_vel: self.ball.velocity,
             racket_pos: self.player_left.pos_y,
             racket_x: self.player_left.pos_x,
-            opponent_pos: self.player_right.pos_y,
-            screen_width: context.gfx.drawable_size().0,
             screen_height: context.gfx.drawable_size().1,
             pressed_keys: pressed.clone(),
         };
@@ -71,8 +69,6 @@ impl event::EventHandler for MainState {
             ball_vel: self.ball.velocity,
             racket_pos: self.player_right.pos_y,
             racket_x: self.player_right.pos_x,
-            opponent_pos: self.player_left.pos_y,
-            screen_width: context.gfx.drawable_size().0,
             screen_height: context.gfx.drawable_size().1,
             pressed_keys: pressed,
         };

@@ -18,26 +18,8 @@ pub struct ControllerInput {
     pub ball_vel: Vec2,
     pub racket_pos: f32,
     pub racket_x: f32,
-    pub opponent_pos: f32,
-    pub screen_width: f32,
     pub screen_height: f32,
     pub pressed_keys: HashSet<KeyCode>,
-}
-
-impl ControllerInput {
-    // Convert the input to a simple float feature vector suitable for feeding into a neural network or ML model.
-    pub fn to_feature_vec(&self) -> Vec<f32> {
-        vec![
-            self.ball_pos.x,
-            self.ball_pos.y,
-            self.ball_vel.x,
-            self.ball_vel.y,
-            self.racket_pos,
-            self.racket_x,
-            self.opponent_pos,
-            self.screen_height,
-        ]
-    }
 }
 
 pub struct HumanController {
@@ -62,8 +44,6 @@ impl Controller for HumanController {
         }
     }
 }
-
-// --- AI strategy implementations -------------------------------------------------
 
 trait AiBehavior {
     /// Choose a vertical target (y) for the racket based on the controller input.
