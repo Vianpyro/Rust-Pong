@@ -45,6 +45,8 @@ impl event::EventHandler for MainState {
         let delta_time = context.time.delta().as_secs_f32();
         self.debug.update(context)?;
 
+        self.debug.set_ball_info(context, self.ball.position, self.ball.velocity, self.ball.speed)?;
+
         if context.keyboard.is_key_just_pressed(KeyCode::F1) {
             self.debug.toggle();
         }
