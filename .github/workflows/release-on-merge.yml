@@ -25,8 +25,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Download build artifacts (Linux)
+        uses: actions/download-artifact@v4
+        with:
+          name: Pong-ubuntu-latest
+          path: dist/Pong-ubuntu-latest
+
+      - name: Download build artifacts (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: Pong-windows-latest
+          path: dist/Pong-windows-latest
+
+      - name: Download build artifacts (macOS)
+        uses: actions/download-artifact@v4
+        with:
+          name: Pong-macos-latest
+          path: dist/Pong-macos-latest
+
       - name: Create GitHub release and upload assets
-        id: create_release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +61,3 @@ jobs:
             dist/Pong-macos-latest/**/Rust-Pong
             dist/Pong-windows-latest/**/rust-pong.exe
             dist/Pong-windows-latest/**/Rust-Pong.exe
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.check_artifacts.outputs.windows_path }}
-          asset_name: rust-pong-windows.exe
-          asset_content_type: application/octet-stream
