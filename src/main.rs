@@ -22,10 +22,6 @@ fn main() -> GameResult {
     let (mut context, event_loop) = context_builder.build()?;
     context.gfx.set_window_title(TITLE);
 
-    let state = MainState::new(
-        &mut context,
-        Box::new(HumanController::new(KeyCode::W, KeyCode::S)),
-        Box::new(AIController::new()),
-    )?;
+    let state = MainState::new(&mut context, Box::new(AIController::easy()), Box::new(AIController::medium()))?;
     event::run(context, event_loop, state);
 }
