@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   build:
+    name: Build Game Binaries
     uses: ./.github/workflows/build-game-binary.yml
     secrets: inherit
 
@@ -43,7 +44,6 @@ jobs:
             dist/Pong-macos-latest/**/Rust-Pong
             dist/Pong-windows-latest/**/rust-pong.exe
             dist/Pong-windows-latest/**/Rust-Pong.exe
-        with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ steps.check_artifacts.outputs.windows_path }}
           asset_name: rust-pong-windows.exe
