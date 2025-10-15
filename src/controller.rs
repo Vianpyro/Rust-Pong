@@ -129,7 +129,7 @@ pub struct AIController {
 
 impl AIController {
     pub fn new() -> Self {
-        Self::medium()
+        Self::expert()
     }
 
     pub fn easy() -> Self {
@@ -138,14 +138,7 @@ impl AIController {
         }
     }
 
-    pub fn medium() -> Self {
-        Self {
-            strategy: Box::new(PredictiveBehavior::new()),
-        }
-    }
-
-    pub fn hard() -> Self {
-        // For now hard == medium (TODO: add less error / faster reaction later)
+    pub fn expert() -> Self {
         Self {
             strategy: Box::new(PredictiveBehavior::new()),
         }
