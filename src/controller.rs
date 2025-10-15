@@ -75,8 +75,8 @@ impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
         let top = input.racket_pos - RACKET_HEIGHT_HALF;
         let bottom = input.racket_pos + RACKET_HEIGHT_HALF;
-        let approaching = (input.ball_vel.x > 0.0 && input.racket_x > input.ball_pos.x && input.screen_width / 2.0 < input.ball_pos.x)
-            || (input.ball_vel.x < 0.0 && input.racket_x < input.ball_pos.x && input.screen_width / 2.0 > input.ball_pos.x);
+        let approaching = (input.ball_vel.x > 0.0 && input.screen_width / 2.0 < input.ball_pos.x && input.racket_x > input.ball_pos.x)
+            || (input.ball_vel.x < 0.0 && input.screen_width / 2.0 > input.ball_pos.x && input.racket_x < input.ball_pos.x);
 
         if approaching {
             if input.ball_pos.y < top {
