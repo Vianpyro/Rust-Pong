@@ -11,6 +11,12 @@
         "command": "git fetch --prune; git branch -vv | ?{$_ -match 'origin/' -and -not (git branch -r | %{\"$_\"})} | %{$_.Split()[0]} | % { git branch -D $_ }"
       },
       "problemMatcher": [],
+      "presentation": {
+        "close": true
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
     },
     {
       "label": "Update cargo",
