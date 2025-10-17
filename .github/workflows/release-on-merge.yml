@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'src/**/*.rs'
-      - 'Cargo.toml'
+      - "src/**/*.rs"
+      - "Cargo.toml"
 
 permissions:
   contents: write
