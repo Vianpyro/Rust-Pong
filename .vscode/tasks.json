@@ -28,7 +28,7 @@
       },
       "runOptions": {
         "runOn": "folderOpen"
-      },
+      }
     },
     {
       "label": "Build Project",
@@ -42,6 +42,6 @@
         "runOn": "folderOpen"
       },
       "dependsOn": "Update cargo"
-    },
+    }
   ]
 }
