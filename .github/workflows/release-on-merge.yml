@@ -4,12 +4,16 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "src/**/*.rs"
+      - "Cargo.toml"
 
 permissions:
   contents: write
 
 jobs:
   build:
+    name: Build Game Binaries
     uses: ./.github/workflows/build-game-binary.yml
     secrets: inherit
 
@@ -21,70 +25,57 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Download build artifacts
+      - name: Download build artifacts (Linux)
         uses: actions/download-artifact@v4
         with:
-          path: dist
+          name: Pong-ubuntu-latest
+          path: dist/Pong-ubuntu-latest
 
-      - name: Create GitHub release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Download build artifacts (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: Pong-windows-latest
+          path: dist/Pong-windows-latest
+
+      - name: Download build artifacts (macOS)
+        uses: actions/download-artifact@v4
+        with:
+          name: Pong-macos-latest
+          path: dist/Pong-macos-latest
+
+      - name: Rename and flatten binaries
+        run: |
+          # Linux
+          if [[ -f dist/Pong-ubuntu-latest/rust-pong ]]; then
+            cp dist/Pong-ubuntu-latest/rust-pong dist/rust-pong-linux
+          elif [[ -f dist/Pong-ubuntu-latest/Rust-Pong ]]; then
+            cp dist/Pong-ubuntu-latest/Rust-Pong dist/rust-pong-linux
+          fi
+          # macOS
+          if [[ -f dist/Pong-macos-latest/rust-pong ]]; then
+            cp dist/Pong-macos-latest/rust-pong dist/rust-pong-macos
+          elif [[ -f dist/Pong-macos-latest/Rust-Pong ]]; then
+            cp dist/Pong-macos-latest/Rust-Pong dist/rust-pong-macos
+          fi
+          # Windows
+          if [[ -f dist/Pong-windows-latest/rust-pong.exe ]]; then
+            cp dist/Pong-windows-latest/rust-pong.exe dist/rust-pong-windows.exe
+          elif [[ -f dist/Pong-windows-latest/Rust-Pong.exe ]]; then
+            cp dist/Pong-windows-latest/Rust-Pong.exe dist/rust-pong-windows.exe
+          fi
+
+      - name: Create GitHub release and upload assets
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: release-${{ github.run_number }}-${{ github.sha }}
-          release_name: "Release #${{ github.run_number }}"
-          body: "Automatically generated release for run ${{ github.run_number }} (commit ${{ github.sha }})"
+          name: "Release #${{ github.run_number }}"
+          generate_release_notes: true
           draft: false
           prerelease: false
-
-      - name: Check for artifacts
-        id: check_artifacts
-        run: |
-          # Find all artifact files
-          linux_binary=$(find dist/Pong-ubuntu-latest -type f \( -name 'rust-pong' -o -name 'Rust-Pong' \) -print -quit 2>/dev/null || true)
-          macos_binary=$(find dist/Pong-macos-latest -type f \( -name 'rust-pong' -o -name 'Rust-Pong' \) -print -quit 2>/dev/null || true)
-          windows_binary=$(find dist/Pong-windows-latest -type f \( -name 'rust-pong.exe' -o -name 'Rust-Pong.exe' \) -print -quit 2>/dev/null || true)
-
-          # Set outputs
-          {
-            echo "has_linux=$([ -n "$linux_binary" ] && echo 'true' || echo 'false')"
-            echo "has_macos=$([ -n "$macos_binary" ] && echo 'true' || echo 'false')"
-            echo "has_windows=$([ -n "$windows_binary" ] && echo 'true' || echo 'false')"
-            echo "linux_path=$linux_binary"
-            echo "macos_path=$macos_binary"
-            echo "windows_path=$windows_binary"
-          } >>"$GITHUB_OUTPUT"
-
-      - name: Upload Linux binary
-        if: steps.check_artifacts.outputs.has_linux == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.check_artifacts.outputs.linux_path }}
-          asset_name: rust-pong-linux
-          asset_content_type: application/octet-stream
-
-      - name: Upload macOS binary
-        if: steps.check_artifacts.outputs.has_macos == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.check_artifacts.outputs.macos_path }}
-          asset_name: rust-pong-macos
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows binary
-        if: steps.check_artifacts.outputs.has_windows == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.check_artifacts.outputs.windows_path }}
-          asset_name: rust-pong-windows.exe
-          asset_content_type: application/octet-stream
+          fail_on_unmatched_files: false
+          files: |
+            dist/rust-pong-linux
+            dist/rust-pong-macos
+            dist/rust-pong-windows.exe
