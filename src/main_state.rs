@@ -45,6 +45,8 @@ impl event::EventHandler for MainState {
         let delta_time = context.time.delta().as_secs_f32();
         self.debug.update(context)?;
 
+        self.debug.set_ball_info(context, self.ball.position, self.ball.velocity, self.ball.speed)?;
+
         if context.keyboard.is_key_just_pressed(KeyCode::F1) {
             self.debug.toggle();
         }
@@ -60,8 +62,6 @@ impl event::EventHandler for MainState {
             ball_vel: self.ball.velocity,
             racket_pos: self.player_left.pos_y,
             racket_x: self.player_left.pos_x,
-            opponent_pos: self.player_right.pos_y,
-            screen_width: context.gfx.drawable_size().0,
             screen_height: context.gfx.drawable_size().1,
             pressed_keys: pressed.clone(),
         };
@@ -71,8 +71,6 @@ impl event::EventHandler for MainState {
             ball_vel: self.ball.velocity,
             racket_pos: self.player_right.pos_y,
             racket_x: self.player_right.pos_x,
-            opponent_pos: self.player_left.pos_y,
-            screen_width: context.gfx.drawable_size().0,
             screen_height: context.gfx.drawable_size().1,
             pressed_keys: pressed,
         };

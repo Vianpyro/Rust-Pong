@@ -8,8 +8,7 @@ mod physics;
 mod racket;
 mod score;
 
-use crate::controller::AIController;
-use crate::{controller::HumanController, main_state::MainState};
+use crate::{controller::AIController, controller::HumanController, main_state::MainState};
 use ggez::conf::{FullscreenType, WindowMode};
 use ggez::{ContextBuilder, GameResult, event, input::keyboard::KeyCode};
 
@@ -25,7 +24,7 @@ fn main() -> GameResult {
     let state = MainState::new(
         &mut context,
         Box::new(HumanController::new(KeyCode::W, KeyCode::S)),
-        Box::new(AIController::new()),
+        Box::new(AIController::expert()),
     )?;
     event::run(context, event_loop, state);
 }
