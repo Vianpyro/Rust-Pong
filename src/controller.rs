@@ -3,6 +3,8 @@ use ggez::glam::Vec2;
 use ggez::input::keyboard::KeyCode;
 use std::collections::HashSet;
 
+const AI_RACKET_PERCEPTION: f32 = 0.75;
+
 pub trait Controller {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction;
 }
@@ -123,8 +125,10 @@ impl AIController {
 
 impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
-        let racket_top = input.racket_pos - RACKET_HEIGHT_HALF;
-        let racket_bottom = input.racket_pos + RACKET_HEIGHT_HALF;
+        let perceived_half_height = RACKET_HEIGHT_HALF * AI_RACKET_PERCEPTION;
+
+        let racket_top = input.racket_pos - perceived_half_height;
+        let racket_bottom = input.racket_pos + perceived_half_height;
 
         // Decide whether the ball is approaching this racket (works for either side)
         let ball_approaching = (input.ball_vel.x > 0.0 && input.racket_x > input.ball_pos.x) || (input.ball_vel.x < 0.0 && input.racket_x < input.ball_pos.x);
@@ -140,7 +144,7 @@ impl Controller for AIController {
             }
         } else {
             let center_y = input.screen_height / 2.0;
-            let deadzone = RACKET_HEIGHT_HALF;
+            let deadzone = perceived_half_height;
             if input.racket_pos < center_y - deadzone {
                 RacketAction::MoveDown
             } else if input.racket_pos > center_y + deadzone {
