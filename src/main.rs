@@ -25,7 +25,7 @@ fn main() -> GameResult {
     let state = MainState::new(
         &mut context,
         Box::new(HumanController::new(KeyCode::W, KeyCode::S)),
-        Box::new(AIController::expert()),
+        Box::new(AIController::balanced()),
     )?;
     event::run(context, event_loop, state);
 }
