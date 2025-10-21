@@ -139,7 +139,7 @@ impl AIController {
 
     pub fn medium() -> Self {
         Self {
-            strategy: Box::new(MixedBehavior::new()),
+            strategy: Box::new(BalancedBehavior::new()),
         }
     }
 
@@ -148,20 +148,14 @@ impl AIController {
             strategy: Box::new(PredictiveBehavior::new()),
         }
     }
-
-    pub fn balanced() -> Self {
-        Self {
-            strategy: Box::new(BalancedBehavior::new()),
-        }
-    }
 }
 
 impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
         let perceived_half_height = RACKET_HEIGHT_HALF * AI_RACKET_PERCEPTION;
 
-        let racket_top = input.racket_pos - perceived_half_height;
-        let racket_bottom = input.racket_pos + perceived_half_height;
+        let racket_top = input.racket_position - perceived_half_height;
+        let racket_bottom = input.racket_position + perceived_half_height;
 
         // Decide whether the ball is approaching this racket (works for either side)
         let ball_approaching =
@@ -179,7 +173,7 @@ impl Controller for AIController {
         } else {
             let center_y = input.screen_height / 2.0;
             let deadzone = perceived_half_height;
-            if input.racket_pos < center_y - deadzone {
+            if input.racket_position < center_y - deadzone {
                 RacketAction::MoveDown
             } else if input.racket_position > center_y + deadzone {
                 RacketAction::MoveUp

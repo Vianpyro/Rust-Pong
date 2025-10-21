@@ -6,12 +6,9 @@
 // - SPACE/ENTER: Start game
 
 use crate::ui::menu as ui_menu;
-use crate::{ball::*, controller::ControllerInput, debug::DebugInfo, physics::*, player_type::PlayerType, racket::*, score::Score};
+use crate::{audio::SfxManager, ball::*, controller::ControllerInput, debug::DebugInfo, physics::*, player_type::PlayerType, racket::*, score::Score};
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect, Text};
 use ggez::{Context, GameResult, event, glam::Vec2, input::keyboard::KeyCode};
-use crate::{audio::SfxManager, ball::*, controller::Controller, controller::ControllerInput, debug::DebugInfo, physics::*, racket::*, score::Score};
-use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
-use ggez::{Context, GameResult, event, input::keyboard::KeyCode};
 use std::collections::HashSet;
 
 const MIDDLE_LINE_WIDTH: f32 = RACKET_WIDTH / 4.0;
