@@ -1,6 +1,7 @@
 use crate::ball::{BALL_SIZE, BALL_SPEED_INCREMENT, BALL_SPEED_MAX, Ball};
 use crate::racket::{RACKET_HEIGHT_HALF, RACKET_WIDTH_HALF, Racket};
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Player {
     Left,
     Right,
@@ -25,9 +26,9 @@ pub fn racket_collision(ball: &mut Ball, racket: &Racket) -> bool {
     };
 
     let racket_edge = if ball.velocity.x < 0.0 {
-        racket.pos_x + RACKET_WIDTH_HALF
+        racket.position_x + RACKET_WIDTH_HALF
     } else {
-        racket.pos_x - RACKET_WIDTH_HALF
+        racket.position_x - RACKET_WIDTH_HALF
     };
 
     let horizontal_overlap = if ball.velocity.x < 0.0 {
@@ -36,14 +37,14 @@ pub fn racket_collision(ball: &mut Ball, racket: &Racket) -> bool {
         contact_x >= racket_edge
     };
 
-    let vertical_overlap = ball.position.y >= racket.pos_y - RACKET_HEIGHT_HALF && ball.position.y <= racket.pos_y + RACKET_HEIGHT_HALF;
+    let vertical_overlap = ball.position.y >= racket.position_y - RACKET_HEIGHT_HALF && ball.position.y <= racket.position_y + RACKET_HEIGHT_HALF;
 
     // Only reflect if ball is actually approaching the racket (prevents accidental reflections)
-    let approaching = (ball.velocity.x < 0.0 && ball.position.x > racket.pos_x) || (ball.velocity.x > 0.0 && ball.position.x < racket.pos_x);
+    let approaching = (ball.velocity.x < 0.0 && ball.position.x > racket.position_x) || (ball.velocity.x > 0.0 && ball.position.x < racket.position_x);
 
     if horizontal_overlap && vertical_overlap && approaching {
         ball.velocity.x = -ball.velocity.x;
-        let offset = (ball.position.y - racket.pos_y) / RACKET_HEIGHT_HALF;
+        let offset = (ball.position.y - racket.position_y) / RACKET_HEIGHT_HALF;
         ball.velocity.y = ball.speed * offset;
         ball.speed = (ball.speed * BALL_SPEED_INCREMENT).min(BALL_SPEED_MAX);
         ball.velocity = ball.velocity.normalize() * ball.speed;

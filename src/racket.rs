@@ -10,8 +10,8 @@ pub const RACKET_WIDTH_HALF: f32 = RACKET_WIDTH / 2.0;
 pub const RACKET_OFFSET: f32 = RACKET_WIDTH * 2.0;
 
 pub struct Racket {
-    pub pos_y: f32,
-    pub pos_x: f32,
+    pub position_y: f32,
+    pub position_x: f32,
     racket_mesh: Mesh,
     pub controller: Box<dyn Controller>,
 }
@@ -22,36 +22,36 @@ impl Racket {
         let racket_mesh = Mesh::new_rectangle(context, ggez::graphics::DrawMode::fill(), rect, Color::WHITE)?;
 
         Ok(Self {
-            pos_x: x,
-            pos_y: y,
+            position_x: x,
+            position_y: y,
             racket_mesh,
             controller,
         })
     }
 
     pub fn draw_on_canvas(&self, canvas: &mut Canvas) {
-        canvas.draw(&self.racket_mesh, DrawParam::default().dest([self.pos_x, self.pos_y]));
+        canvas.draw(&self.racket_mesh, DrawParam::default().dest([self.position_x, self.position_y]));
     }
 
     pub fn update(&mut self, input: &crate::controller::ControllerInput, delta_time: f32) {
         match self.controller.get_action(input) {
             MoveUp => {
-                self.pos_y -= RACKET_SPEED * delta_time;
+                self.position_y -= RACKET_SPEED * delta_time;
             }
             MoveDown => {
-                self.pos_y += RACKET_SPEED * delta_time;
+                self.position_y += RACKET_SPEED * delta_time;
             }
             Stay => {}
         }
 
         // Keep the racket inside the screen bounds
         let half_height = RACKET_HEIGHT / 2.0;
-        if self.pos_y < half_height {
-            self.pos_y = half_height;
+        if self.position_y < half_height {
+            self.position_y = half_height;
         }
         let lower_limit = input.screen_height - half_height;
-        if self.pos_y > lower_limit {
-            self.pos_y = lower_limit;
+        if self.position_y > lower_limit {
+            self.position_y = lower_limit;
         }
     }
 }

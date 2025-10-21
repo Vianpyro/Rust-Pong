@@ -6,12 +6,14 @@ mod controller;
 mod debug;
 mod main_state;
 mod physics;
+mod player_type;
 mod racket;
 mod score;
+mod ui;
 
-use crate::{controller::AIController, controller::HumanController, main_state::MainState};
+use crate::main_state::MainState;
 use ggez::conf::{FullscreenType, WindowMode};
-use ggez::{ContextBuilder, GameResult, event, input::keyboard::KeyCode};
+use ggez::{ContextBuilder, GameResult, event};
 
 const TITLE: &str = "Pong";
 
@@ -22,10 +24,6 @@ fn main() -> GameResult {
     let (mut context, event_loop) = context_builder.build()?;
     context.gfx.set_window_title(TITLE);
 
-    let state = MainState::new(
-        &mut context,
-        Box::new(HumanController::new(KeyCode::W, KeyCode::S)),
-        Box::new(AIController::balanced()),
-    )?;
+    let state = MainState::new(&mut context)?;
     event::run(context, event_loop, state);
 }

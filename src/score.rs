@@ -2,8 +2,8 @@ use ggez::graphics::{Canvas, Color, DrawParam, PxScale, Text};
 use ggez::{Context, GameResult, glam::Vec2};
 
 pub struct Score {
-    p1: u32,
-    p2: u32,
+    p1: u8,
+    p2: u8,
     text: Text,
     position: Vec2,
     scale: f32,
@@ -48,5 +48,13 @@ impl Score {
 
     pub fn draw_on_canvas(&self, canvas: &mut Canvas) {
         canvas.draw(&self.text, DrawParam::default().dest(self.position).color(Color::from_rgb(50, 50, 50)));
+    }
+
+    pub fn get_p1_score(&self) -> u8 {
+        self.p1
+    }
+
+    pub fn get_p2_score(&self) -> u8 {
+        self.p2
     }
 }
