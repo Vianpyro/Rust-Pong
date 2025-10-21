@@ -10,12 +10,16 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # Required for cosign keyless signing
 
 jobs:
   build:
     name: Build Game Binaries
     uses: ./.github/workflows/build-game-binary.yml
     secrets: inherit
+    permissions:
+      contents: read
+      id-token: write  # Pass id-token permission to called workflow
 
   create_release:
     name: Create Release and Upload Assets
@@ -48,21 +52,51 @@ jobs:
           # Linux
           if [[ -f dist/Pong-ubuntu-latest/rust-pong ]]; then
             cp dist/Pong-ubuntu-latest/rust-pong dist/rust-pong-linux
+            # Copy signature files if present
+            [[ -f dist/Pong-ubuntu-latest/rust-pong.sig ]] && cp dist/Pong-ubuntu-latest/rust-pong.sig dist/rust-pong-linux.sig
+            [[ -f dist/Pong-ubuntu-latest/rust-pong.sig.cert ]] && cp dist/Pong-ubuntu-latest/rust-pong.sig.cert dist/rust-pong-linux.sig.cert
+            [[ -f dist/Pong-ubuntu-latest/rust-pong.asc ]] && cp dist/Pong-ubuntu-latest/rust-pong.asc dist/rust-pong-linux.asc
           elif [[ -f dist/Pong-ubuntu-latest/Rust-Pong ]]; then
             cp dist/Pong-ubuntu-latest/Rust-Pong dist/rust-pong-linux
+            # Copy signature files if present
+            [[ -f dist/Pong-ubuntu-latest/Rust-Pong.sig ]] && cp dist/Pong-ubuntu-latest/Rust-Pong.sig dist/rust-pong-linux.sig
+            [[ -f dist/Pong-ubuntu-latest/Rust-Pong.sig.cert ]] && cp dist/Pong-ubuntu-latest/Rust-Pong.sig.cert dist/rust-pong-linux.sig.cert
+            [[ -f dist/Pong-ubuntu-latest/Rust-Pong.asc ]] && cp dist/Pong-ubuntu-latest/Rust-Pong.asc dist/rust-pong-linux.asc
           fi
+
           # macOS
           if [[ -f dist/Pong-macos-latest/rust-pong ]]; then
             cp dist/Pong-macos-latest/rust-pong dist/rust-pong-macos
+            # Copy signature files if present
+            [[ -f dist/Pong-macos-latest/rust-pong.sig ]] && cp dist/Pong-macos-latest/rust-pong.sig dist/rust-pong-macos.sig
+            [[ -f dist/Pong-macos-latest/rust-pong.sig.cert ]] && cp dist/Pong-macos-latest/rust-pong.sig.cert dist/rust-pong-macos.sig.cert
+            [[ -f dist/Pong-macos-latest/rust-pong.asc ]] && cp dist/Pong-macos-latest/rust-pong.asc dist/rust-pong-macos.asc
           elif [[ -f dist/Pong-macos-latest/Rust-Pong ]]; then
             cp dist/Pong-macos-latest/Rust-Pong dist/rust-pong-macos
+            # Copy signature files if present
+            [[ -f dist/Pong-macos-latest/Rust-Pong.sig ]] && cp dist/Pong-macos-latest/Rust-Pong.sig dist/rust-pong-macos.sig
+            [[ -f dist/Pong-macos-latest/Rust-Pong.sig.cert ]] && cp dist/Pong-macos-latest/Rust-Pong.sig.cert dist/rust-pong-macos.sig.cert
+            [[ -f dist/Pong-macos-latest/Rust-Pong.asc ]] && cp dist/Pong-macos-latest/Rust-Pong.asc dist/rust-pong-macos.asc
           fi
+
           # Windows
           if [[ -f dist/Pong-windows-latest/rust-pong.exe ]]; then
             cp dist/Pong-windows-latest/rust-pong.exe dist/rust-pong-windows.exe
+            # Copy signature files if present
+            [[ -f dist/Pong-windows-latest/rust-pong.exe.sig ]] && cp dist/Pong-windows-latest/rust-pong.exe.sig dist/rust-pong-windows.exe.sig
+            [[ -f dist/Pong-windows-latest/rust-pong.exe.sig.cert ]] && cp dist/Pong-windows-latest/rust-pong.exe.sig.cert dist/rust-pong-windows.exe.sig.cert
+            [[ -f dist/Pong-windows-latest/rust-pong.exe.asc ]] && cp dist/Pong-windows-latest/rust-pong.exe.asc dist/rust-pong-windows.exe.asc
           elif [[ -f dist/Pong-windows-latest/Rust-Pong.exe ]]; then
             cp dist/Pong-windows-latest/Rust-Pong.exe dist/rust-pong-windows.exe
+            # Copy signature files if present
+            [[ -f dist/Pong-windows-latest/Rust-Pong.exe.sig ]] && cp dist/Pong-windows-latest/Rust-Pong.exe.sig dist/rust-pong-windows.exe.sig
+            [[ -f dist/Pong-windows-latest/Rust-Pong.exe.sig.cert ]] && cp dist/Pong-windows-latest/Rust-Pong.exe.sig.cert dist/rust-pong-windows.exe.sig.cert
+            [[ -f dist/Pong-windows-latest/Rust-Pong.exe.asc ]] && cp dist/Pong-windows-latest/Rust-Pong.exe.asc dist/rust-pong-windows.exe.asc
           fi
+
+          # Copy SHA256SUMS from Linux build (it's the same for all platforms)
+          [[ -f dist/Pong-ubuntu-latest/SHA256SUMS ]] && cp dist/Pong-ubuntu-latest/SHA256SUMS dist/SHA256SUMS
+          [[ -f dist/Pong-ubuntu-latest/SHA256SUMS.asc ]] && cp dist/Pong-ubuntu-latest/SHA256SUMS.asc dist/SHA256SUMS.asc
 
       - name: Create GitHub release and upload assets
         uses: softprops/action-gh-release@v2
@@ -77,5 +111,16 @@ jobs:
           fail_on_unmatched_files: false
           files: |
             dist/rust-pong-linux
+            dist/rust-pong-linux.sig
+            dist/rust-pong-linux.sig.cert
+            dist/rust-pong-linux.asc
             dist/rust-pong-macos
+            dist/rust-pong-macos.sig
+            dist/rust-pong-macos.sig.cert
+            dist/rust-pong-macos.asc
             dist/rust-pong-windows.exe
+            dist/rust-pong-windows.exe.sig
+            dist/rust-pong-windows.exe.sig.cert
+            dist/rust-pong-windows.exe.asc
+            dist/SHA256SUMS
+            dist/SHA256SUMS.asc

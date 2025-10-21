@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write  # Required for cosign keyless signing via OIDC
 
 jobs:
   build:
@@ -51,6 +52,104 @@ jobs:
           mkdir dist
           copy target\release\rust-pong.exe dist\
         shell: pwsh
+
+      # ===== Binary Signing with Cosign (Keyless) =====
+      # Cosign keyless signing uses OIDC tokens from GitHub Actions (no private key storage needed)
+      # Verification: cosign verify-blob --signature <file>.sig --certificate <file>.sig.cert --certificate-identity <identity> --certificate-oidc-issuer https://token.actions.githubusercontent.com <file>
+      # Note: For Windows SmartScreen/macOS Gatekeeper bypass, paid code signing certificates are required
+
+      - name: Install cosign (Linux)
+        if: runner.os == 'Linux'
+        env:
+          COSIGN_VERSION: v2.2.4
+        run: |
+          curl -sLO "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+          sudo mv cosign-linux-amd64 /usr/local/bin/cosign
+          sudo chmod +x /usr/local/bin/cosign
+          cosign version
+
+      - name: Install cosign (macOS)
+        if: runner.os == 'macOS'
+        env:
+          COSIGN_VERSION: v2.2.4
+        run: |
+          curl -sLO "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-darwin-amd64"
+          sudo mv cosign-darwin-amd64 /usr/local/bin/cosign
+          sudo chmod +x /usr/local/bin/cosign
+          cosign version
+
+      - name: Install cosign (Windows)
+        if: runner.os == 'Windows'
+        env:
+          COSIGN_VERSION: v2.2.4
+        run: |
+          curl.exe -sLO "https://github.com/sigstore/cosign/releases/download/$env:COSIGN_VERSION/cosign-windows-amd64.exe"
+          Move-Item -Force cosign-windows-amd64.exe C:\Windows\System32\cosign.exe
+          cosign version
+        shell: pwsh
+
+      - name: Sign binaries with cosign (keyless)
+        run: |
+          echo "Signing binaries with cosign keyless mode..."
+          for file in dist/*; do
+            # Skip if it's a directory or already a signature file
+            if [ -f "$file" ] && [[ "$file" != *.sig ]]; then
+              echo "Signing: $file"
+              cosign sign-blob --yes "$file" --output-signature "${file}.sig" --output-certificate "${file}.sig.cert"
+            fi
+          done
+        shell: bash
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd dist
+          # Generate checksums for all files except .sig and .sig.cert files
+          find . -type f ! -name "*.sig" ! -name "*.sig.cert" -exec sha256sum {} \; > SHA256SUMS
+          cat SHA256SUMS
+        shell: bash
+
+      # ===== Optional GPG Signing =====
+      # GPG signatures provide an additional verification layer
+      # Secrets required (optional): LINUX_GPG_PRIVATE_KEY (base64-encoded private key), LINUX_GPG_PASSPHRASE
+      # Verification: gpg --verify <file>.asc <file>
+
+      - name: Import GPG key and sign with GPG (optional)
+        if: runner.os == 'Linux' && env.LINUX_GPG_PRIVATE_KEY != ''
+        env:
+          LINUX_GPG_PRIVATE_KEY: ${{ secrets.LINUX_GPG_PRIVATE_KEY }}
+          LINUX_GPG_PASSPHRASE: ${{ secrets.LINUX_GPG_PASSPHRASE }}
+        run: |
+          # Import GPG key if provided
+          if [ -n "$LINUX_GPG_PRIVATE_KEY" ]; then
+            echo "Importing GPG key..."
+            echo "$LINUX_GPG_PRIVATE_KEY" | base64 -d | gpg --batch --import
+
+            # Sign each binary with GPG
+            echo "Signing binaries with GPG..."
+            for file in dist/*; do
+              if [ -f "$file" ] && [[ "$file" != *.sig ]] && [[ "$file" != *.asc ]] && [[ "$file" != *.cert ]]; then
+                echo "GPG signing: $file"
+                if [ -n "$LINUX_GPG_PASSPHRASE" ]; then
+                  echo "$LINUX_GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --detach-sign --armor "$file"
+                else
+                  gpg --batch --yes --detach-sign --armor "$file"
+                fi
+              fi
+            done
+
+            # Sign SHA256SUMS
+            if [ -f dist/SHA256SUMS ]; then
+              echo "GPG signing SHA256SUMS..."
+              if [ -n "$LINUX_GPG_PASSPHRASE" ]; then
+                echo "$LINUX_GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 --detach-sign --armor dist/SHA256SUMS
+              else
+                gpg --batch --yes --detach-sign --armor dist/SHA256SUMS
+              fi
+            fi
+          else
+            echo "No GPG key provided, skipping GPG signatures"
+          fi
+        shell: bash
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
