@@ -5,7 +5,6 @@ use rust_embed::RustEmbed;
 #[folder = "assets/sfx"]
 pub struct Asset;
 
-/// Charge et joue un son embarqué
 pub fn play_embedded_sound(ctx: &mut ggez::Context, name: &str) -> ggez::GameResult<()> {
     if let Some(data) = Asset::get(name) {
         let bytes = data.data.as_ref();

@@ -48,7 +48,7 @@ impl Controller for HumanController {
 }
 
 trait AiBehavior {
-    /// Choose a vertical target (y) for the racket based on the controller input.
+    // Choose a vertical target (y) for the racket based on the controller input.
     fn choose_target(&mut self, input: &ControllerInput) -> f32;
 }
 
@@ -73,7 +73,7 @@ impl PredictiveBehavior {
         Self {}
     }
 
-    /// Predict where the ball will be vertically when it reaches racket_x.
+    // Predict where the ball will be vertically when it reaches racket_x.
     pub fn predict_ball_y(&self, input: &ControllerInput) -> f32 {
         // time until ball reaches racket x
         let delta_x = input.racket_x - input.ball_position.x;

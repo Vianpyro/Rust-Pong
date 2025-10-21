@@ -94,10 +94,8 @@ pub fn draw_menu(context: &mut Context, canvas: &mut Canvas, left_type: PlayerTy
     let title_position = Vec2::new((screen_width - title_dimensions.x) / 2.0, screen_height * 0.15);
     canvas.draw(&title, DrawParam::default().dest(title_position).color(Color::WHITE));
 
-    // Player 1
+    // Player 1 & Player 2 boxes
     draw_player_box(context, canvas, layout.left_box, "Player 1", left_type, selected_player == 1)?;
-
-    // Player 2
     draw_player_box(context, canvas, layout.right_box, "Player 2", right_type, selected_player == 2)?;
 
     // Keyboard instructions

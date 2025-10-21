@@ -26,12 +26,12 @@ pub fn randomize_velocity(vector: &mut Vec2, x: f32, y: f32) {
 }
 
 impl Ball {
-    /// Draw the ball on the provided canvas.
+    // Draw the ball on the provided canvas.
     pub fn draw_on_canvas(&self, canvas: &mut graphics::Canvas) {
         canvas.draw(&self.ball_mesh, graphics::DrawParam::default().dest(self.position));
     }
 
-    /// Reset ball position and speed, and randomize its direction.
+    // Reset ball position and speed, and randomize its direction.
     pub fn reset(&mut self, position_x: f32, position_y: f32) {
         self.position = Vec2::new(position_x, position_y);
         self.speed = BALL_SPEED;
