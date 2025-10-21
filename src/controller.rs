@@ -150,69 +150,6 @@ impl AIController {
     }
 }
 
-impl AiBehavior for ReactiveBehavior {
-    fn choose_target(&mut self, input: &ControllerInput) -> f32 {
-        input.ball_pos.y
-    }
-}
-
-struct PredictiveBehavior {}
-
-impl PredictiveBehavior {
-    fn new() -> Self {
-        Self {}
-    }
-
-    /// Predict where the ball will be vertically when it reaches racket_x.
-    fn predict_ball_y(&self, input: &ControllerInput) -> f32 {
-        // time until ball reaches racket x
-        let delta_x = input.racket_x - input.ball_pos.x;
-        if input.ball_vel.x == 0.0 {
-            return input.ball_pos.y;
-        }
-        let time_to_reach = delta_x / input.ball_vel.x;
-
-        // projected vertical position at that time (may be outside bounds)
-        let projected_y = input.ball_pos.y + input.ball_vel.y * time_to_reach;
-
-        // reflect across top/bottom using mirror modulus to account for bounces
-        let screen_height = input.screen_height;
-        if screen_height <= 0.0 {
-            return projected_y;
-        }
-        let wrap_period = 2.0 * screen_height;
-        let mut modded = projected_y % wrap_period;
-        if modded < 0.0 {
-            modded += wrap_period;
-        }
-        if modded <= screen_height { modded } else { 2.0 * screen_height - modded }
-    }
-}
-
-impl AiBehavior for PredictiveBehavior {
-    fn choose_target(&mut self, input: &ControllerInput) -> f32 {
-        self.predict_ball_y(input)
-    }
-}
-
-pub struct AIController {
-    strategy: Box<dyn AiBehavior + Send>,
-}
-
-impl AIController {
-    pub fn easy() -> Self {
-        Self {
-            strategy: Box::new(ReactiveBehavior::new()),
-        }
-    }
-
-    pub fn expert() -> Self {
-        Self {
-            strategy: Box::new(PredictiveBehavior::new()),
-        }
-    }
-}
-
 impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
         let perceived_half_height = RACKET_HEIGHT_HALF * AI_RACKET_PERCEPTION;
