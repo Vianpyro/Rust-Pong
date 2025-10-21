@@ -105,6 +105,27 @@ impl AiBehavior for PredictiveBehavior {
     }
 }
 
+pub struct BalancedBehavior {
+    // Fields to store necessary state
+}
+
+impl BalancedBehavior {
+    pub fn new() -> Self {
+        Self {
+            // Initialize fields
+        }
+    }
+}
+
+impl AiBehavior for BalancedBehavior {
+    fn choose_target(&mut self, input: &ControllerInput) -> f32 {
+        // Logic to average between Reactive and Predictive behavior
+        let reactive_target = ReactiveBehavior::new().choose_target(input);
+        let predictive_target = PredictiveBehavior::new().choose_target(input);
+        (reactive_target + predictive_target) / 2.0
+    }
+}
+
 pub struct AIController {
     strategy: Box<dyn AiBehavior + Send>,
 }
@@ -119,6 +140,12 @@ impl AIController {
     pub fn expert() -> Self {
         Self {
             strategy: Box::new(PredictiveBehavior::new()),
+        }
+    }
+
+    pub fn balanced() -> Self {
+        Self {
+            strategy: Box::new(BalancedBehavior::new()),
         }
     }
 }
