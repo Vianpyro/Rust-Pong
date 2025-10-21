@@ -1,4 +1,5 @@
 use crate::controller::{AIController, Controller, HumanController};
+use crate::physics::Player;
 use ggez::input::keyboard::KeyCode;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -37,10 +38,10 @@ impl PlayerType {
         }
     }
 
-    pub fn create_controller_for_player(&self, player: u8) -> Box<dyn Controller> {
+    pub fn create_controller_for_player(&self, player: Player) -> Box<dyn Controller> {
         match self {
             PlayerType::Human => {
-                if player == 1 {
+                if player == Player::Right {
                     Box::new(HumanController::new(KeyCode::W, KeyCode::S))
                 } else {
                     Box::new(HumanController::new(KeyCode::Up, KeyCode::Down))
