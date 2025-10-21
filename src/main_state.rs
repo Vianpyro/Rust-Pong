@@ -76,6 +76,16 @@ impl MainState {
         })
     }
 
+    fn draw_centered_title(&self, canvas: &mut Canvas, context: &mut Context, text: &str, color: Color) -> GameResult {
+        let (screen_width, screen_height) = context.gfx.drawable_size();
+        let mut title = Text::new(text);
+        title.set_scale(screen_height / 10.0);
+        let title_dimensions = title.measure(context)?;
+        let title_position = Vec2::new((screen_width - title_dimensions.x) / 2.0, screen_height / 3.0);
+        canvas.draw(&title, DrawParam::default().dest(title_position).color(color));
+        Ok(())
+    }
+
     fn update_controllers(&mut self, context: &mut Context) -> GameResult {
         let screen_height = context.gfx.drawable_size().1;
         let screen_height_center = screen_height / 2.0;
@@ -346,12 +356,7 @@ impl MainState {
             Player::Left => "Player 1 Wins!",
             Player::Right => "Player 2 Wins!",
         };
-
-        let mut title = Text::new(winner_text);
-        title.set_scale(screen_height / 10.0);
-        let title_dimensions = title.measure(context)?;
-        let title_position = Vec2::new((screen_width - title_dimensions.x) / 2.0, screen_height / 3.0);
-        canvas.draw(&title, DrawParam::default().dest(title_position).color(Color::WHITE));
+        self.draw_centered_title(canvas, context, winner_text, Color::WHITE)?;
 
         // Press to continue
         let mut continue_text = Text::new("SPACE/ENTER: Menu   |   R: Restart   |   Esc: Quit");
@@ -378,11 +383,7 @@ impl MainState {
         let (screen_width, screen_height) = context.gfx.drawable_size();
 
         // Paused title
-        let mut title = Text::new("Paused");
-        title.set_scale(screen_height / 10.0);
-        let title_dimensions = title.measure(context)?;
-        let title_position = Vec2::new((screen_width - title_dimensions.x) / 2.0, screen_height / 3.0);
-        canvas.draw(&title, DrawParam::default().dest(title_position).color(Color::WHITE));
+        self.draw_centered_title(canvas, context, "Paused", Color::WHITE)?;
 
         // Hints
         let mut hint = Text::new("P: Resume   |   Esc: Quit");
