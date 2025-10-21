@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 
+mod audio;
 mod ball;
 mod controller;
 mod debug;
@@ -18,7 +19,7 @@ const TITLE: &str = "Pong";
 
 fn main() -> GameResult {
     let window_mode = WindowMode::default().fullscreen_type(FullscreenType::Desktop);
-    let context_builder = ContextBuilder::new(TITLE, "Vianpyro").window_mode(window_mode);
+    let context_builder = ContextBuilder::new(TITLE, "Vianpyro").window_mode(window_mode).add_resource_path("./assets");
 
     let (mut context, event_loop) = context_builder.build()?;
     context.gfx.set_window_title(TITLE);

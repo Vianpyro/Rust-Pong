@@ -8,9 +8,12 @@ pub enum Player {
 }
 
 /// Bounce the ball off the top/bottom walls if needed.
-pub fn bounce_borders(ball: &mut Ball, screen_h: f32) {
+pub fn bounce_borders(ball: &mut Ball, screen_h: f32) -> bool {
     if ball.position.y - BALL_SIZE / 2.0 <= 0.0 && ball.velocity.y < 0.0 || ball.position.y + BALL_SIZE / 2.0 >= screen_h && ball.velocity.y > 0.0 {
         ball.velocity.y = -ball.velocity.y;
+        true
+    } else {
+        false
     }
 }
 

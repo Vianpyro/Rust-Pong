@@ -3,6 +3,8 @@ use ggez::glam::Vec2;
 use ggez::input::keyboard::KeyCode;
 use std::collections::HashSet;
 
+const AI_RACKET_PERCEPTION: f32 = 0.75;
+
 pub trait Controller {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction;
 }
@@ -103,25 +105,24 @@ impl AiBehavior for PredictiveBehavior {
     }
 }
 
-struct MixedBehavior {
-    predictive: PredictiveBehavior,
+pub struct BalancedBehavior {
+    // Fields to store necessary state
 }
 
-impl MixedBehavior {
-    fn new() -> Self {
+impl BalancedBehavior {
+    pub fn new() -> Self {
         Self {
-            predictive: PredictiveBehavior::new(),
+            // Initialize fields
         }
     }
 }
 
-impl AiBehavior for MixedBehavior {
+impl AiBehavior for BalancedBehavior {
     fn choose_target(&mut self, input: &ControllerInput) -> f32 {
-        // Medium AI uses prediction but with less accuracy (adds slight offset)
-        let predicted = self.predictive.predict_ball_y(input);
-        // Add some error to make it less perfect
-        let error_margin = RACKET_HEIGHT_HALF * 0.5;
-        predicted + (input.ball_position.x.sin() * error_margin)
+        // Logic to average between Reactive and Predictive behavior
+        let reactive_target = ReactiveBehavior::new().choose_target(input);
+        let predictive_target = PredictiveBehavior::new().choose_target(input);
+        (reactive_target + predictive_target) / 2.0
     }
 }
 
@@ -147,12 +148,20 @@ impl AIController {
             strategy: Box::new(PredictiveBehavior::new()),
         }
     }
+
+    pub fn balanced() -> Self {
+        Self {
+            strategy: Box::new(BalancedBehavior::new()),
+        }
+    }
 }
 
 impl Controller for AIController {
     fn get_action(&mut self, input: &ControllerInput) -> RacketAction {
-        let racket_top = input.racket_position - RACKET_HEIGHT_HALF;
-        let racket_bottom = input.racket_position + RACKET_HEIGHT_HALF;
+        let perceived_half_height = RACKET_HEIGHT_HALF * AI_RACKET_PERCEPTION;
+
+        let racket_top = input.racket_pos - perceived_half_height;
+        let racket_bottom = input.racket_pos + perceived_half_height;
 
         // Decide whether the ball is approaching this racket (works for either side)
         let ball_approaching =
@@ -169,8 +178,8 @@ impl Controller for AIController {
             }
         } else {
             let center_y = input.screen_height / 2.0;
-            let deadzone = RACKET_HEIGHT_HALF;
-            if input.racket_position < center_y - deadzone {
+            let deadzone = perceived_half_height;
+            if input.racket_pos < center_y - deadzone {
                 RacketAction::MoveDown
             } else if input.racket_position > center_y + deadzone {
                 RacketAction::MoveUp

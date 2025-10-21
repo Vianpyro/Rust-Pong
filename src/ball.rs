@@ -3,7 +3,7 @@ use rand::Rng;
 
 pub const BALL_SPEED: f32 = 750.0;
 pub const BALL_SIZE: f32 = 20.0;
-pub const BALL_SPEED_INCREMENT: f32 = 1.05;
+pub const BALL_SPEED_INCREMENT: f32 = 1.1;
 pub const BALL_SPEED_MAX: f32 = 2500.0;
 
 pub struct Ball {
