@@ -40,8 +40,8 @@ impl MainState {
         let player_left_type = PlayerType::Human;
         let player_right_type = PlayerType::AIHard;
 
-        let left_controller = player_left_type.create_controller_for_player(1);
-        let right_controller = player_right_type.create_controller_for_player(2);
+        let left_controller = player_left_type.create_controller_for_player(Player::Left);
+        let right_controller = player_right_type.create_controller_for_player(Player::Right);
         let (screen_width, screen_height) = context.gfx.drawable_size();
         let (screen_width_center, screen_height_center) = (screen_width / 2.0, screen_height / 2.0);
 
@@ -88,14 +88,14 @@ impl MainState {
             RACKET_OFFSET,
             screen_height_center,
             context,
-            self.player_left_type.create_controller_for_player(1),
+            self.player_left_type.create_controller_for_player(Player::Left),
         )?;
 
         self.player_right = Racket::new(
             context.gfx.drawable_size().0 - RACKET_OFFSET,
             screen_height_center,
             context,
-            self.player_right_type.create_controller_for_player(2),
+            self.player_right_type.create_controller_for_player(Player::Right),
         )?;
 
         Ok(())
