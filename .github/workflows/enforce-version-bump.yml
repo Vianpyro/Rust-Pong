@@ -22,9 +22,10 @@ jobs:
           VERSION=$(grep '^version =' Cargo.toml | head -n 1 | cut -d '"' -f 2)
           echo "version=$VERSION"
 
-      - name: Retrieve the previous version from the base branch
-        id: get_previous_version
+      - name: Fetch default branch
+        run: git fetch origin main --depth=1
+
+      - name: Get previous version from default branch
         run: |
-          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
-          PREV_VERSION=$(git show origin/${{ github.event.pull_request.base.ref }}:Cargo.toml | grep '^version =' | head -n 1 | cut -d '"' -f 2)
-          echo "prev_version=$PREV_VERSION"
+          PREV_VERSION=$(git show origin/main:Cargo.toml | grep '^version =' | head -n 1 | cut -d '"' -f 2)
+          echo "prev_version=$PREV_VERSION" >> $GITHUB_ENV
