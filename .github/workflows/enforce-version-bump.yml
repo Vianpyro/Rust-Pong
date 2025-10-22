@@ -2,10 +2,6 @@ name: Enforce version bump on Rust changes
 
 on:
   push:
-	# pull_request:
-	# 	types: [opened, synchronize, reopened, edited]
-	# 	paths:
-  #   - '**/*.rs'
 
 permissions:
 	contents: read
