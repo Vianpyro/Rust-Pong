@@ -6,7 +6,7 @@
 // - SPACE/ENTER: Start game
 
 use crate::ui::menu as ui_menu;
-use crate::{audio::SfxManager, ball::*, controller::ControllerInput, debug::DebugInfo, physics::*, player_type::PlayerType, racket::*, score::Score};
+use crate::{audio::play_embedded_sound, ball::*, controller::ControllerInput, debug::DebugInfo, physics::*, player_type::PlayerType, racket::*, score::Score};
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect, Text};
 use ggez::{Context, GameResult, event, glam::Vec2, input::keyboard::KeyCode};
 use std::collections::HashSet;
@@ -33,7 +33,6 @@ pub struct MainState {
     middle_line_mesh: Mesh,
     score: Score,
     debug: DebugInfo,
-    sfx: SfxManager,
 }
 
 impl MainState {
@@ -56,11 +55,6 @@ impl MainState {
 
         let score = Score::new(context)?;
 
-        let mut sfx = SfxManager::new();
-        let _ = sfx.load(context, "wall_bounce", "/sfx/wall_bounce.wav");
-        let _ = sfx.load(context, "score", "/sfx/score.wav");
-        let _ = sfx.load(context, "racket_hit", "/sfx/racket_hit.wav");
-
         Ok(MainState {
             state: GameState::Menu,
             player_left: Racket::new(RACKET_OFFSET, screen_height_center, context, left_controller)?,
@@ -72,7 +66,6 @@ impl MainState {
             middle_line_mesh,
             score,
             debug: DebugInfo::new(),
-            sfx,
         })
     }
 
@@ -297,15 +290,15 @@ impl MainState {
         self.player_right.update(&input_right, delta_time);
 
         if bounce_borders(&mut self.ball, context.gfx.drawable_size().1) {
-            let _ = self.sfx.play("wall_bounce", context);
+            let _ = play_embedded_sound(context, "wall_bounce.wav");
         }
 
         if racket_collision(&mut self.ball, &self.player_left) || racket_collision(&mut self.ball, &self.player_right) {
-            let _ = self.sfx.play("racket_hit", context);
+            let _ = play_embedded_sound(context, "racket_hit.wav");
         }
 
         if let Some(scored) = check_score(&self.ball, context.gfx.drawable_size().0) {
-            let _ = self.sfx.play("score", context);
+            let _ = play_embedded_sound(context, "score.wav");
             match scored {
                 Player::Left => {
                     self.score.increment_p1(context)?;
