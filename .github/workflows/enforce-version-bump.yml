@@ -1,7 +1,7 @@
 name: Enforce version bump on Rust changes
 
 on:
-  push: null
+  push:
 	# pull_request:
 	# 	types: [opened, synchronize, reopened, edited]
 	# 	paths:
@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   enforce-version-bump:
+    name: Enforce version bump on Rust changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
