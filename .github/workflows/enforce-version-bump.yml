@@ -21,11 +21,25 @@ jobs:
         run: |
           VERSION=$(grep '^version =' Cargo.toml | head -n 1 | cut -d '"' -f 2)
           echo "version=$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Fetch default branch
         run: git fetch origin main --depth=1
 
       - name: Get previous version from default branch
+        id: get_previous_version
         run: |
           PREV_VERSION=$(git show origin/main:Cargo.toml | grep '^version =' | head -n 1 | cut -d '"' -f 2)
           echo "previous_version=$PREV_VERSION"
+          echo "previous_version=$PREV_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare_versions
+        run: |
+          if [ "${{ steps.get_version.outputs.version }}" = "${{ steps.get_previous_version.outputs.previous_version }}" ]; then
+            echo "versions_equal=true"
+            echo "versions_equal=true" >> $GITHUB_OUTPUT
+          else
+            echo "versions_equal=false"
+            echo "versions_equal=false" >> $GITHUB_OUTPUT
+          fi
