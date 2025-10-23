@@ -1,6 +1,5 @@
 use crate::racket::RACKET_HEIGHT_HALF;
-use ggez::glam::Vec2;
-use ggez::input::keyboard::KeyCode;
+use ggez::{glam::Vec2, input::keyboard::KeyCode};
 use std::collections::HashSet;
 
 const AI_RACKET_PERCEPTION: f32 = 0.75;

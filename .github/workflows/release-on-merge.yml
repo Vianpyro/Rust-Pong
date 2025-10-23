@@ -5,8 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "src/**/*.rs"
-      - "Cargo.toml"
+      - "Cargo.toml" # Trigger only on version changes since a workflow verifies version bumps on Rust changes
 
 permissions:
   contents: write
@@ -64,13 +63,19 @@ jobs:
             cp dist/Pong-windows-latest/Rust-Pong.exe dist/rust-pong-windows.exe
           fi
 
+      - name: Retrieve version from Cargo.toml
+        id: get_version
+        run: |
+          VERSION=$(grep '^version =' Cargo.toml | head -n 1 | cut -d '"' -f 2)
+          echo "version=$VERSION" | tee -a "$GITHUB_OUTPUT"
+
       - name: Create GitHub release and upload assets
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: release-${{ github.run_number }}-${{ github.sha }}
-          name: "Release #${{ github.run_number }}"
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: "Version ${{ steps.get_version.outputs.version }}"
           generate_release_notes: true
           draft: false
           prerelease: false
