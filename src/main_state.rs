@@ -256,6 +256,18 @@ impl event::EventHandler for MainState {
         canvas.finish(context)?;
         Ok(())
     }
+
+    fn quit_event(&mut self, _ctx: &mut Context) -> GameResult<bool> {
+        // If we're on the menu, allow the quit to proceed (return Ok(false)).
+        // Otherwise, return to the menu and cancel the quit (return Ok(true)).
+        match &self.state {
+            GameState::Menu => Ok(false),
+            _ => {
+                self.state = GameState::Menu;
+                Ok(true)
+            }
+        }
+    }
 }
 
 impl MainState {
@@ -352,7 +364,7 @@ impl MainState {
         self.draw_centered_title(canvas, context, winner_text, Color::WHITE)?;
 
         // Press to continue
-        let mut continue_text = Text::new("SPACE/ENTER: Menu   |   R: Restart   |   Esc: Quit");
+        let mut continue_text = Text::new("SPACE/ENTER: Menu   |   R: Restart   |   Esc: Menu");
         continue_text.set_scale(screen_height / 30.0);
         let continue_dimensions = continue_text.measure(context)?;
         let continue_position = Vec2::new((screen_width - continue_dimensions.x) / 2.0, screen_height * 0.65);
@@ -379,7 +391,7 @@ impl MainState {
         self.draw_centered_title(canvas, context, "Paused", Color::WHITE)?;
 
         // Hints
-        let mut hint = Text::new("P: Resume   |   Esc: Quit");
+        let mut hint = Text::new("P: Resume   |   Esc: Menu");
         hint.set_scale(screen_height / 30.0);
         let hint_dimensions = hint.measure(context)?;
         let hint_position = Vec2::new((screen_width - hint_dimensions.x) / 2.0, screen_height * 0.65);
