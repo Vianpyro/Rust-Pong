@@ -5,8 +5,14 @@
 // - Mouse Click: Select and cycle player type
 // - SPACE/ENTER: Start game
 
+use crate::game::ball::*;
+use crate::game::physics::*;
+use crate::game::racket::*;
+use crate::game::score::Score;
+use crate::player::controller::ControllerInput;
+use crate::player::player_type::PlayerType;
 use crate::ui::menu as ui_menu;
-use crate::{audio::play_embedded_sound, ball::*, controller::ControllerInput, debug::DebugInfo, physics::*, player_type::PlayerType, racket::*, score::Score};
+use crate::{audio::play_embedded_sound, debug::DebugInfo};
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect, Text};
 use ggez::{Context, GameResult, event, glam::Vec2, input::keyboard::KeyCode};
 use std::collections::HashSet;

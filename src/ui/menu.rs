@@ -1,7 +1,7 @@
 use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect, Text};
 use ggez::{Context, GameResult, glam::Vec2};
 
-use crate::player_type::PlayerType;
+use crate::player::player_type::PlayerType;
 
 // Layout ratios for the menu UI (tweak here to adjust spacing/size)
 const BOX_WIDTH_RATIO: f32 = 0.35;
