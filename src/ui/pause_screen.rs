@@ -9,12 +9,7 @@ pub fn draw_pause_screen(context: &mut Context, canvas: &mut Canvas) -> GameResu
 
     let (screen_width, screen_height) = context.gfx.drawable_size();
 
-    // Paused title
-    let mut title = Text::new("Paused");
-    title.set_scale(screen_height / 10.0);
-    let title_dimensions = title.measure(context)?;
-    let title_position = Vec2::new((screen_width - title_dimensions.x) / 2.0, screen_height / 3.0);
-    canvas.draw(&title, DrawParam::default().dest(title_position).color(Color::WHITE));
+    super::common::draw_centered_title(context, canvas, "Paused", Color::WHITE)?;
 
     // Hints
     let mut hint = Text::new("P: Resume   |   Esc: Menu");
