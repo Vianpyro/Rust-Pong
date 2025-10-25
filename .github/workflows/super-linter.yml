@@ -39,11 +39,18 @@ jobs:
           # fetch the base ref so changed-files detection can compare correctly
           git fetch --no-tags --prune origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
 
+      - name: Debug workspace & event
+        run: |
+          echo "=== Git tracked files ==="
+          git ls-files | sed -n '1,200p'
+          echo "=== Event payload (partial) ==="
+          cat $GITHUB_EVENT_PATH | sed -n '1,200p'
+
       - name: Super-linter
         uses: super-linter/super-linter/slim@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
           FILTER_REGEX_EXCLUDE: "(.devcontainer/Dockerfile|.github/pull_request_template.md|.github/ISSUE_TEMPLATE/*.md|.github/workflows/*.(yml|yaml))"
           # Disable problematic validators
           VALIDATE_BIOME_FORMAT: false
