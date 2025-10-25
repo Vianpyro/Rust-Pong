@@ -24,7 +24,7 @@ pub fn draw_game_over(context: &mut Context, canvas: &mut Canvas, winner: Player
     canvas.draw(&title, DrawParam::default().dest(title_position).color(Color::WHITE));
 
     // Press to continue
-    let mut continue_text = Text::new("R: Restart   |   Esc: Menu");
+    let mut continue_text = Text::new("R: Restart  |   Esc: Menu");
     continue_text.set_scale(screen_height / 30.0);
     let continue_dimensions = continue_text.measure(context)?;
     let continue_position = Vec2::new((screen_width - continue_dimensions.x) / 2.0, screen_height * 0.65);
