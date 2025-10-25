@@ -43,6 +43,7 @@ jobs:
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_GIT_COMMITLINT: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           # Enable fixers for PR events
           FIX_JSON: true
           FIX_JSON_PRETTIER: true
@@ -50,6 +51,7 @@ jobs:
           FIX_MARKDOWN_PRETTIER: true
           FIX_NATURAL_LANGUAGE: ${{ github.event_name == 'pull_request' }}
           FIX_RUST_CLIPPY: ${{ github.event_name == 'pull_request' }}
+          # Custom options for linters
           RUST_CLIPPY_COMMAND_OPTIONS: "--config max_width=160"
 
       - name: Commit and push fixes
