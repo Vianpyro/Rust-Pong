@@ -13,7 +13,7 @@ use crate::player::controller::ControllerInput;
 use crate::player::player_type::PlayerType;
 use crate::ui::menu as ui_menu;
 use crate::{audio::play_embedded_sound, debug::DebugInfo};
-use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect, Text};
+use ggez::graphics::{Canvas, Color, DrawMode, DrawParam, Mesh, Rect};
 use ggez::{Context, GameResult, event, glam::Vec2, input::keyboard::KeyCode};
 use std::collections::HashSet;
 
@@ -73,16 +73,6 @@ impl MainState {
             score,
             debug: DebugInfo::new(),
         })
-    }
-
-    fn draw_centered_title(&self, canvas: &mut Canvas, context: &mut Context, text: &str, color: Color) -> GameResult {
-        let (screen_width, screen_height) = context.gfx.drawable_size();
-        let mut title = Text::new(text);
-        title.set_scale(screen_height / 10.0);
-        let title_dimensions = title.measure(context)?;
-        let title_position = Vec2::new((screen_width - title_dimensions.x) / 2.0, screen_height / 3.0);
-        canvas.draw(&title, DrawParam::default().dest(title_position).color(color));
-        Ok(())
     }
 
     fn update_controllers(&mut self, context: &mut Context) -> GameResult {
@@ -251,14 +241,16 @@ impl event::EventHandler for MainState {
                 self.draw_playing(&mut canvas);
             }
             GameState::Paused => {
-                self.draw_paused(context, &mut canvas)?;
+                self.draw_playing(&mut canvas);
+                crate::ui::pause_screen::draw_pause_screen(context, &mut canvas)?;
             }
             GameState::GameOver { winner } => {
-                self.draw_game_over(context, &mut canvas, *winner)?;
+                self.draw_playing(&mut canvas);
+                crate::ui::game_over::draw_game_over(context, &mut canvas, *winner)?;
             }
         }
 
-        self.debug.draw(&mut canvas);
+        crate::ui::hud::draw_hud(context, &mut canvas, &self.debug)?;
         canvas.finish(context)?;
         Ok(())
     }
@@ -349,60 +341,5 @@ impl MainState {
         self.player_left.draw_on_canvas(canvas);
         self.player_right.draw_on_canvas(canvas);
         self.ball.draw_on_canvas(canvas);
-    }
-
-    fn draw_game_over(&self, context: &mut Context, canvas: &mut Canvas, winner: Player) -> GameResult {
-        // First draw the game state
-        self.draw_playing(canvas);
-
-        // Semi-transparent overlay
-        let overlay_rect = Rect::new(0.0, 0.0, context.gfx.drawable_size().0, context.gfx.drawable_size().1);
-        let overlay_mesh = Mesh::new_rectangle(context, DrawMode::fill(), overlay_rect, Color::from_rgba(0, 0, 0, 180))?;
-        canvas.draw(&overlay_mesh, DrawParam::default());
-
-        let (screen_width, screen_height) = context.gfx.drawable_size();
-
-        // Winner text
-        let winner_text = match winner {
-            Player::Left => "Player 1 Wins!",
-            Player::Right => "Player 2 Wins!",
-        };
-        self.draw_centered_title(canvas, context, winner_text, Color::WHITE)?;
-
-        // Press to continue
-        let mut continue_text = Text::new("SPACE/ENTER: Menu   |   R: Restart   |   Esc: Menu");
-        continue_text.set_scale(screen_height / 30.0);
-        let continue_dimensions = continue_text.measure(context)?;
-        let continue_position = Vec2::new((screen_width - continue_dimensions.x) / 2.0, screen_height * 0.65);
-        canvas.draw(
-            &continue_text,
-            DrawParam::default().dest(continue_position).color(Color::from_rgb(200, 200, 200)),
-        );
-
-        Ok(())
-    }
-
-    fn draw_paused(&self, context: &mut Context, canvas: &mut Canvas) -> GameResult {
-        // Draw current game state in the background
-        self.draw_playing(canvas);
-
-        // Semi-transparent overlay
-        let overlay_rect = Rect::new(0.0, 0.0, context.gfx.drawable_size().0, context.gfx.drawable_size().1);
-        let overlay_mesh = Mesh::new_rectangle(context, DrawMode::fill(), overlay_rect, Color::from_rgba(0, 0, 0, 160))?;
-        canvas.draw(&overlay_mesh, DrawParam::default());
-
-        let (screen_width, screen_height) = context.gfx.drawable_size();
-
-        // Paused title
-        self.draw_centered_title(canvas, context, "Paused", Color::WHITE)?;
-
-        // Hints
-        let mut hint = Text::new("P: Resume   |   Esc: Menu");
-        hint.set_scale(screen_height / 30.0);
-        let hint_dimensions = hint.measure(context)?;
-        let hint_position = Vec2::new((screen_width - hint_dimensions.x) / 2.0, screen_height * 0.65);
-        canvas.draw(&hint, DrawParam::default().dest(hint_position).color(Color::from_rgb(200, 200, 200)));
-
-        Ok(())
     }
 }
