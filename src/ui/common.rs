@@ -1,5 +1,5 @@
-use ggez::graphics::{Canvas, Color, DrawParam, Text};
 use ggez::{Context, GameResult, glam::Vec2};
+use ggez::graphics::{Canvas, Color, DrawParam, Text};
 
 pub fn draw_centered_title(context: &mut Context, canvas: &mut Canvas, text: &str, color: Color) -> GameResult {
     let (screen_width, screen_height) = context.gfx.drawable_size();

@@ -33,6 +33,12 @@ jobs:
           npm install -g prettier
           prettier --write .
 
+      - name: Fetch PR base branch
+        if: github.event_name == 'pull_request'
+        run: |
+          # fetch the base ref so changed-files detection can compare correctly
+          git fetch --no-tags --prune origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+
       - name: Super-linter
         uses: super-linter/super-linter/slim@v8
         env:
