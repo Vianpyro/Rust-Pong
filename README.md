@@ -22,8 +22,8 @@ To get started with this project:
    ```
 
 > [!NOTE]
-> Sound effect files (sfx) are embedded in the binary, so you don't need to include them when distributing the executable.
-> If you encounter platform-specific audio or windowing issues, ensure the required system libraries (for audio/display) are available for your OS.
+> - Sound effect files (sfx) are embedded in the binary, so you don't need to include them when distributing the executable.
+> - If you encounter platform-specific audio or windowing issues, ensure the required system libraries (for audio/display) are available for your OS.
 
 ## 📁 Project Structure
 
