@@ -7,19 +7,19 @@ Welcome to the **Rust-Pong** repository! This repository contains a small Pong c
 To get started with this project:
 
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/Vianpyro/Rust-Pong.git
-    cd Rust-Pong
-    ```
-2. Install the Rust toolchain if you don't already have it: https://rustup.rs/
+   ```bash
+   git clone https://github.com/Vianpyro/Rust-Pong.git
+   cd Rust-Pong
+   ```
+2. Install the Rust toolchain if you don't already have it: <https://rustup.rs/>
 3. Build the project:
-    ```bash
-    cargo build
-    ```
+   ```bash
+   cargo build
+   ```
 4. Run the game:
-    ```bash
-    cargo run --release
-    ```
+   ```bash
+   cargo run --release
+   ```
 
 > [!NOTE]
 > Sound effect files (sfx) are embedded in the binary, so you don't need to include them when distributing the executable.
@@ -31,12 +31,12 @@ The repository contains the following directories and files (high level):
 
 - `assets/` - Game assets (sounds, images, etc.)
 - `src/` - Application source code
-    - `audio/` - Audio handling
-    - `game/` - Game objects and physics (ball, racket, score)
-    - `player/` - Player and controller code
-    - `ui/` - Menus, HUD, and screens
-    - `main.rs` - Application entry point
-    - `main_state.rs`, `debug.rs` - Game state and debugging helpers
+  - `audio/` - Audio handling
+  - `game/` - Game objects and physics (ball, racket, score)
+  - `player/` - Player and controller code
+  - `ui/` - Menus, HUD, and screens
+  - `main.rs` - Application entry point
+  - `main_state.rs`, `debug.rs` - Game state and debugging helpers
 - `Cargo.toml` - Rust package manifest
 - `LICENSE` - Project license (see file for terms)
 
@@ -49,15 +49,17 @@ The repository contains the following directories and files (high level):
 ## 📖 Documentation
 
 The code is organized into clear modules under `src/`. For details, explore the following files and folders:
+
 - `src/game/` — core game logic and physics
 - `src/audio/` — audio playback and resource handling
 - `src/ui/` — UI screens (menu, HUD, pause, game over)
 
-Expand this README as the project grows to include contribution guidelines, a development roadmap, and detailed architecture notes.
+Expand this readme as the project grows to include contribution guidelines, a development roadmap, and detailed architecture notes.
 
 ## 🤝 Contributing
 
 Contributions are welcome. Suggested workflow:
+
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Make your changes and add tests where applicable.
