@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -33,24 +33,29 @@ jobs:
           prettier --write .
 
       - name: Super-linter
-        uses: super-linter/super-linter/slim@v7
+        uses: super-linter/super-linter/slim@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: "(.devcontainer/Dockerfile|.github/pull_request_template.md|.github/ISSUE_TEMPLATE/*.md)"
+          VALIDATE_ALL_CODEBASE: true
+          FILTER_REGEX_EXCLUDE: "(.devcontainer/Dockerfile|.github/pull_request_template.md|.github/ISSUE_TEMPLATE/*.md|.github/workflows/*.(yml|yaml))"
           # Disable problematic validators
+          VALIDATE_BIOME_FORMAT: false
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_GIT_COMMITLINT: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           # Enable fixers for PR events
           FIX_JSON: true
           FIX_JSON_PRETTIER: true
           FIX_MARKDOWN: true
           FIX_MARKDOWN_PRETTIER: true
           FIX_NATURAL_LANGUAGE: ${{ github.event_name == 'pull_request' }}
+          FIX_RUST_CLIPPY: true
+          # Custom options for linters
+          RUST_CLIPPY_COMMAND_OPTIONS: "--config max_width=160"
 
       - name: Commit and push fixes
         if: github.event_name == 'pull_request' && github.event.pull_request.head.ref != github.event.repository.default_branch
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: ${{ github.event.pull_request.head.ref }}
           commit_message: "Super-Linter: Fix linting issues"

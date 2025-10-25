@@ -1,6 +1,6 @@
 [package]
 name = "Rust-Pong"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Vianpyro"]
 edition = "2024"
 

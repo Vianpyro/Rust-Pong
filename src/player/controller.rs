@@ -1,4 +1,4 @@
-use crate::racket::RACKET_HEIGHT_HALF;
+use crate::game::racket::RACKET_HEIGHT_HALF;
 use ggez::{glam::Vec2, input::keyboard::KeyCode};
 use std::collections::HashSet;
 

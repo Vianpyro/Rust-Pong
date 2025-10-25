@@ -1,14 +1,10 @@
 #![windows_subsystem = "windows"]
 
 mod audio;
-mod ball;
-mod controller;
 mod debug;
+mod game;
 mod main_state;
-mod physics;
-mod player_type;
-mod racket;
-mod score;
+mod player;
 mod ui;
 
 use crate::main_state::MainState;

@@ -1,5 +1,5 @@
-use crate::controller::{AIController, Controller, HumanController};
-use crate::physics::Player;
+use crate::game::physics::Player;
+use crate::player::controller::{AIController, Controller, HumanController};
 use ggez::input::keyboard::KeyCode;
 
 #[derive(Debug, Clone, Copy, PartialEq)]

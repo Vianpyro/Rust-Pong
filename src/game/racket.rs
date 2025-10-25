@@ -1,4 +1,4 @@
-use crate::controller::{Controller, RacketAction::*};
+use crate::player::controller::{Controller, RacketAction::*};
 use ggez::graphics::{Canvas, Color, DrawParam, Mesh, Rect};
 use ggez::{Context, GameResult};
 
@@ -33,7 +33,7 @@ impl Racket {
         canvas.draw(&self.racket_mesh, DrawParam::default().dest([self.position_x, self.position_y]));
     }
 
-    pub fn update(&mut self, input: &crate::controller::ControllerInput, delta_time: f32) {
+    pub fn update(&mut self, input: &crate::player::controller::ControllerInput, delta_time: f32) {
         match self.controller.get_action(input) {
             MoveUp => {
                 self.position_y -= RACKET_SPEED * delta_time;
