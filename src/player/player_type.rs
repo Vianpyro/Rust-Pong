@@ -41,7 +41,7 @@ impl PlayerType {
     pub fn create_controller_for_player(&self, player: Player) -> Box<dyn Controller> {
         match self {
             PlayerType::Human => {
-                if player == Player::Right {
+                if player == Player::Left {
                     Box::new(HumanController::new(KeyCode::W, KeyCode::S))
                 } else {
                     Box::new(HumanController::new(KeyCode::Up, KeyCode::Down))
